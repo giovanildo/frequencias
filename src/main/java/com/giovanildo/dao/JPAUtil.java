@@ -7,7 +7,7 @@ import javax.persistence.Persistence;
 public class JPAUtil {
 
 	private static EntityManagerFactory emf = Persistence
-			.createEntityManagerFactory("sigtemp");
+			.createEntityManagerFactory("sigtestes");
 
 	public EntityManager getEntityManager() {
 		return emf.createEntityManager();
