@@ -11,14 +11,21 @@
 
 <h:body>
 	<h1>Frequencias Mensais</h1>
-	<!-- combo com a lista de plano de trabalho -->
-	<!-- depois de seleciona busca as frequencias correspondentes -->
+
+	<h:outputLabel value="Selecione o plano de Trabalho: "
+		for="planoTrabalho" />
+	<h:selectOneMenu value="#{frequenciaMensalMBean.planoTrabalhoId}"
+		id="planoTrabalhoId">
+		<f:selectItems value="#{frequenciaMensalMBean.planosTrabalho}"
+			var="plano" itemLabel="#{plano.descricao}" itemValue="#{plano.id}" />
+	</h:selectOneMenu>
+
 	<h:form id="form">
 		<h:messages id="mensagens" />
 		<fieldset>
 			<legend>Dados da Frequencia</legend>
 			<h:panelGrid>
-				<h:outputLabel />
+				<h:outputLabel value="testes" />
 			</h:panelGrid>
 		</fieldset>
 
