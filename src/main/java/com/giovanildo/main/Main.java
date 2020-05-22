@@ -1,12 +1,12 @@
 package com.giovanildo.main;
 
 import com.giovanildo.dao.DAO;
-import com.giovanildo.models.FrequenciaMensal;
+import com.giovanildo.models.PlanoTrabalho;
 
 public class Main {
 	public static void main(String[] args) {
-		for (FrequenciaMensal daVez : new DAO<FrequenciaMensal>(FrequenciaMensal.class).listaTodos()) {
-			System.out.println(daVez.getMesAno());
-		}
+		PlanoTrabalho planoTrabalho = new PlanoTrabalho();
+		planoTrabalho.setDescricao("plano teste");
+		new DAO<PlanoTrabalho>(PlanoTrabalho.class).adiciona(planoTrabalho);
 	}
 }

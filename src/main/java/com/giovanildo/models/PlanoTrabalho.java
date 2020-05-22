@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
-//@Entity
-//@Table(name = "plano_trabalho", schema = "pesquisa", uniqueConstraints = {})
+@Entity
+@Table(name = "plano_trabalho", schema = "pesquisa", uniqueConstraints = {})
 public class PlanoTrabalho {
 
 	private Integer id;
@@ -33,7 +35,8 @@ public class PlanoTrabalho {
 	public void setId(Integer id) {
 		this.id = id;
 	}
-
+	
+	@Column (name = "descricao")
 	public String getDescricao() {
 		return descricao;
 	}
@@ -42,7 +45,7 @@ public class PlanoTrabalho {
 		this.descricao = descricao;
 	}
 
-	@OneToMany(mappedBy = "planoTrabalho") //Configuração não existe no sigaa
+	@OneToMany(mappedBy = "planoTrabalho") // Configuração não existe no sigaa
 	public Collection<FrequenciaMensal> getFrequenciasMensais() {
 		return frequenciasMensais;
 	}
