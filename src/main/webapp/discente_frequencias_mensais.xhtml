@@ -6,31 +6,63 @@
 	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
 	xmlns:f="http://xmlns.jcp.org/jsf/core"
 	xmlns:p="http://primefaces.org/ui">
-
 <h:head />
 
 <h:body>
 	<h1>Frequencias Mensais</h1>
-
-	<h:outputLabel value="Selecione o plano de Trabalho: "
-		for="planoTrabalho" />
-	<h:selectOneMenu value="#{frequenciaMensalMBean.planoTrabalhoId}"
-		id="planoTrabalhoId">
-		<f:selectItems value="#{frequenciaMensalMBean.planosTrabalho}"
-			var="plano" itemLabel="#{plano.descricao}" itemValue="#{plano.id}" />
-	</h:selectOneMenu>
-
 	<h:form id="form">
 		<h:messages id="mensagens" />
 		<fieldset>
+			<h:outputLabel value="Plano de Trabalho: " for="planoTrabalhoId" />
+			<h:selectOneMenu value="#{frequenciaMensalMBean.planoTrabalhoId}"
+				id="planoTrabalhoId">
+				<f:ajax event="change" render="mes_ano" />
+				<f:selectItem itemLabel="Selecione um Plano de Trabalho" />
+				<f:selectItems value="#{frequenciaMensalMBean.planosTrabalho}"
+					var="planoTrabalho" itemLabel="#{planoTrabalho.descricao}"
+					itemValue="#{planoTrabalho.id}" />
+			</h:selectOneMenu>
 			<legend>Dados da Frequencia</legend>
 			<h:panelGrid>
-				<h:outputLabel value="testes" />
+				<h:outputLabel value="Mês/Ano " for="mes_ano" />
+				<h:selectOneMenu
+					value="#{frequenciaMensalMBean.frequenciaMensal.mesAno}"
+					id="mes_ano">
+					<f:ajax event="change" render="dia_atividade" />
+					<f:selectItems value="#{frequenciaMensalMBean.mesAnoPossiveis}"
+						var="mesAno" itemLabel="#{mesAno}" itemValue="#{mesAno}" />
+					<f:convertDateTime pattern="ddMMyyyyHHmmssSS" locale = "pt_BR" timeZone="UTC" />
+				</h:selectOneMenu>
 			</h:panelGrid>
+			<h:outputLabel value="Descrição: " for="descricao_id" />
+			<h:inputText id="descricao_id"
+				value="#{frequenciaMensalMBean.frequenciaMensal.descricao}" />
+			<h:commandButton value="Salvar"
+				actionListener="#{frequenciaMensalMBean.salvarFrequenciaMensal}" />
 		</fieldset>
 
+		<fieldset>
+			<!-- dia, hora inicial, hora final, descrição -->
+			<h:outputLabel value="Data : " for="dia_atividade" />
+			<h:selectOneMenu value="#{frequenciaMensalMBean.diaAtividade}"
+				id="dia_atividade">
+				<f:selectItems value="#{frequenciaMensalMBean.diasDoMes}" var="dia"
+					itemLabel="#{dia}" itemValue="#{dia}" />
+			</h:selectOneMenu>
+
+		</fieldset>
+
+		<h:dataTable value="#{frequenciaMensalMBean.frequenciasMensais}"
+			var="frequenciaMensal">
+			<h:column>
+				<h:outputText value="#{frequenciaMensal.mesAno.time}">
+					<f:convertDateTime pattern="MM/yyyy" />
+				</h:outputText>
+			</h:column>
+			<h:column>
+				<h:outputText value="#{frequenciaMensal.descricao}" />
+			</h:column>
+		</h:dataTable>
 	</h:form>
-
-
 </h:body>
 </html>

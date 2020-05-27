@@ -16,6 +16,43 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "situacao_frequencia_mensal", schema = "pesquisa", uniqueConstraints = {})
 public class SituacaoFrequenciaMensal {
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((data == null) ? 0 : data.hashCode());
+		result = prime * result + ((frequenciaMensal == null) ? 0 : frequenciaMensal.hashCode());
+		result = prime * result + id;
+		result = prime * result + ((situacao == null) ? 0 : situacao.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SituacaoFrequenciaMensal other = (SituacaoFrequenciaMensal) obj;
+		if (data == null) {
+			if (other.data != null)
+				return false;
+		} else if (!data.equals(other.data))
+			return false;
+		if (frequenciaMensal == null) {
+			if (other.frequenciaMensal != null)
+				return false;
+		} else if (!frequenciaMensal.equals(other.frequenciaMensal))
+			return false;
+		if (id != other.id)
+			return false;
+		if (situacao != other.situacao)
+			return false;
+		return true;
+	}
+
 	private int id;
 	private FrequenciaMensal frequenciaMensal;
 	private Situacao situacao;

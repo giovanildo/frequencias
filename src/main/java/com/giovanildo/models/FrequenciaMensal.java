@@ -14,6 +14,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "frequencia_mensal", schema = "pesquisa", uniqueConstraints = {})
@@ -24,7 +26,7 @@ public class FrequenciaMensal implements Serializable {
 	private PlanoTrabalho planoTrabalho;
 	private Date mesAno;
 	private Collection<SituacaoFrequenciaMensal> historicoSituacao;
-	private Collection<AtividadePesquisa> frequencias;
+	private Collection<AtividadePesquisa> atividades;
 
 	@Id
 	@GeneratedValue
@@ -38,6 +40,7 @@ public class FrequenciaMensal implements Serializable {
 	}
 
 	@Column(name = "mes_ano")
+	@Temporal(TemporalType.TIMESTAMP)
 	public Date getMesAno() {
 		return mesAno;
 	}
@@ -68,15 +71,6 @@ public class FrequenciaMensal implements Serializable {
 		this.historicoSituacao = historicoSituacao;
 	}
 
-	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, mappedBy = "frequenciaMensal")
-	public Collection<AtividadePesquisa> getFrequencias() {
-		return frequencias;
-	}
-
-	public void setFrequencias(Collection<AtividadePesquisa> frequencias) {
-		this.frequencias = frequencias;
-	}
-
 	@ManyToOne(cascade = {}, fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_plano_trabalho", unique = false, nullable = true, insertable = true, updatable = true)
 	public PlanoTrabalho getPlanoTrabalho() {
@@ -86,4 +80,36 @@ public class FrequenciaMensal implements Serializable {
 	public void setPlanoTrabalho(PlanoTrabalho planoTrabalho) {
 		this.planoTrabalho = planoTrabalho;
 	}
+
+	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, mappedBy = "frequenciaMensal")
+	public Collection<AtividadePesquisa> getAtividades() {
+		return atividades;
+	}
+
+	public void setAtividades(Collection<AtividadePesquisa> atividades) {
+		this.atividades = atividades;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + id;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		FrequenciaMensal other = (FrequenciaMensal) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
+
 }

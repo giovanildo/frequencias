@@ -71,7 +71,6 @@ public class DAO<T> {
 		return instancia;
 	}
 
-
 	public int contaTodos() {
 		EntityManager em = new JPAUtil().getEntityManager();
 		long result = (Long) em.createQuery("select count(n) from livro n").getSingleResult();

@@ -26,6 +26,16 @@
 		<h:column>
 			<h:outputText value="#{planoTrabalho.descricao}" />
 		</h:column>
+		<h:column>
+			<h:outputText value="#{planoTrabalho.dataInicio.time}" >
+				<f:convertDateTime pattern = "dd/MM/yyyy"/>
+			</h:outputText>
+		</h:column>
+		<h:column>
+			<h:outputText value="#{planoTrabalho.dataFim.time}" >
+				<f:convertDateTime pattern = "dd/MM/yyyy"/>
+			</h:outputText>
+		</h:column>
 	</h:dataTable>
 </h:body>
 </html>

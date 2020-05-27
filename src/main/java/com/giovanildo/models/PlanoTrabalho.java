@@ -2,6 +2,7 @@ package com.giovanildo.models;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,9 +15,13 @@ import javax.persistence.Table;
 @Table(name = "plano_trabalho", schema = "pesquisa", uniqueConstraints = {})
 public class PlanoTrabalho {
 
+	
+
 	private Integer id;
 	private String descricao;
 	private Collection<FrequenciaMensal> frequenciasMensais;
+	private Date dataInicio;
+	private Date dataFim;
 
 	@Id
 	@GeneratedValue
@@ -58,4 +63,69 @@ public class PlanoTrabalho {
 	public void setFrequenciasMensais(Collection<FrequenciaMensal> frequenciasMensais) {
 		this.frequenciasMensais = frequenciasMensais;
 	}
+
+	public Date getDataInicio() {
+		return dataInicio;
+	}
+
+	public void setDataInicio(Date dataInicio) {
+		this.dataInicio = dataInicio;
+	}
+
+	public Date getDataFim() {
+		return dataFim;
+	}
+
+	public void setDataFim(Date dataFim) {
+		this.dataFim = dataFim;
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((dataFim == null) ? 0 : dataFim.hashCode());
+		result = prime * result + ((dataInicio == null) ? 0 : dataInicio.hashCode());
+		result = prime * result + ((descricao == null) ? 0 : descricao.hashCode());
+		result = prime * result + ((frequenciasMensais == null) ? 0 : frequenciasMensais.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PlanoTrabalho other = (PlanoTrabalho) obj;
+		if (dataFim == null) {
+			if (other.dataFim != null)
+				return false;
+		} else if (!dataFim.equals(other.dataFim))
+			return false;
+		if (dataInicio == null) {
+			if (other.dataInicio != null)
+				return false;
+		} else if (!dataInicio.equals(other.dataInicio))
+			return false;
+		if (descricao == null) {
+			if (other.descricao != null)
+				return false;
+		} else if (!descricao.equals(other.descricao))
+			return false;
+		if (frequenciasMensais == null) {
+			if (other.frequenciasMensais != null)
+				return false;
+		} else if (!frequenciasMensais.equals(other.frequenciasMensais))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
+
 }
