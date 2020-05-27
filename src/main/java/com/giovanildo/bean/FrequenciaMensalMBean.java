@@ -33,25 +33,24 @@ public class FrequenciaMensalMBean implements Serializable {
 	 * Frequência Mensal
 	 */
 	private FrequenciaMensal frequenciaMensal;
-	/**
-	 * Id do Plano de Trabalho
-	 */
 	private Integer planoTrabalhoId;
-	
-	//atributos a serem persistidos como atividade pesquisa
+	private Date mesAnoFrequencia;
+
+	// atributos a serem persistidos como atividade pesquisa
 	private Date diaAtividade;
 	private Date horaInicioAtividade;
 	private Date horaFimAtividade;
 	private String descricaoAtividade;
-	
+
 	public List<FrequenciaMensal> getFrequenciasMensais() {
 		return new DAO<FrequenciaMensal>(FrequenciaMensal.class).listaTodos();
 	}
 
 	public void salvarFrequenciaMensal() {
 		frequenciaMensal.setPlanoTrabalho(new DAO<PlanoTrabalho>(PlanoTrabalho.class).buscaPorId(planoTrabalhoId));
-		new DAO<FrequenciaMensal>(FrequenciaMensal.class).adiciona(frequenciaMensal);
-		frequenciaMensal = new FrequenciaMensal();
+		frequenciaMensal.setMesAno(this.mesAnoFrequencia);
+		new DAO<FrequenciaMensal>(FrequenciaMensal.class).adiciona(this.frequenciaMensal);
+		this.frequenciaMensal = new FrequenciaMensal();
 	}
 
 	/**
@@ -83,31 +82,32 @@ public class FrequenciaMensalMBean implements Serializable {
 	/**
 	 * 
 	 * @return lista de dias de um mês baseado no mes e ano da frequencia mensal
-	 * serve pra preencher o combo box data da atividade de pesquisa 
+	 *         serve pra preencher o combo box data da atividade de pesquisa
 	 * 
 	 */
 	public List<SelectItem> getDiasDoMes() {
 
 		List<SelectItem> itens = new ArrayList<>();
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-		
-		if(frequenciaMensal.getMesAno() == null) {
+
+		if (this.mesAnoFrequencia == null) {
 			return null;
 		}
-		
-		
+
 		Calendar calendario = new GregorianCalendar();
 		Calendar calendarioInicio = new GregorianCalendar();
 		Calendar calendarioFim = new GregorianCalendar();
-		
-		calendario.setTime(frequenciaMensal.getMesAno());
 
-		int inicio = calendario.getActualMinimum(Calendar.DATE); 
-		int fim = calendario.getActualMaximum(Calendar.DATE);				
+		calendario.setTime(this.mesAnoFrequencia);
+		calendarioInicio.setTime(this.mesAnoFrequencia);
+		calendarioFim.setTime(this.mesAnoFrequencia);
 		
+		int inicio = calendario.getActualMinimum(Calendar.DATE);
+		int fim = calendario.getActualMaximum(Calendar.DATE);
+
 		calendarioInicio.set(Calendar.DATE, inicio);
 		calendarioFim.set(Calendar.DATE, fim);
-		
+
 		List<Date> datas = geraDatasEmUmPeriodo(calendarioInicio.getTime(), calendarioFim.getTime(), Calendar.DATE, 1);
 		
 		for (Date daVez : datas) {
@@ -125,8 +125,8 @@ public class FrequenciaMensalMBean implements Serializable {
 
 		Calendar calendarioFinal = new GregorianCalendar();
 		calendarioFinal.setTime(dataFinal);
-
-		while (calendarioInicial.before(calendarioFinal)) {
+		
+		while (calendarioInicial.before(calendarioFinal) || calendarioInicial.equals(calendarioFinal)) {
 			Date resultado = calendarioInicial.getTime();
 			datasEmUmPeriodo.add(resultado);
 			calendarioInicial.add(oQueIncrementar, incremento);
@@ -152,7 +152,7 @@ public class FrequenciaMensalMBean implements Serializable {
 	public List<PlanoTrabalho> getPlanosTrabalho() {
 		return new DAO<PlanoTrabalho>(PlanoTrabalho.class).listaTodos();
 	}
-	
+
 	public FrequenciaMensal getFrequenciaMensal() {
 		return frequenciaMensal;
 	}
@@ -199,6 +199,14 @@ public class FrequenciaMensalMBean implements Serializable {
 
 	public void setDiaAtividade(Date diaAtividade) {
 		this.diaAtividade = diaAtividade;
+	}
+
+	public Date getMesAnoFrequencia() {
+		return mesAnoFrequencia;
+	}
+
+	public void setMesAnoFrequencia(Date mesAnoFrequencia) {
+		this.mesAnoFrequencia = mesAnoFrequencia;
 	}
 
 }

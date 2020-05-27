@@ -17,7 +17,7 @@
 			<h:selectOneMenu value="#{frequenciaMensalMBean.planoTrabalhoId}"
 				id="planoTrabalhoId">
 				<f:ajax event="change" render="mes_ano" />
-				<f:selectItem itemLabel="Selecione um Plano de Trabalho" />
+				<f:selectItem itemLabel="Selecione" />
 				<f:selectItems value="#{frequenciaMensalMBean.planosTrabalho}"
 					var="planoTrabalho" itemLabel="#{planoTrabalho.descricao}"
 					itemValue="#{planoTrabalho.id}" />
@@ -25,13 +25,15 @@
 			<legend>Dados da Frequencia</legend>
 			<h:panelGrid>
 				<h:outputLabel value="Mês/Ano " for="mes_ano" />
-				<h:selectOneMenu
-					value="#{frequenciaMensalMBean.frequenciaMensal.mesAno}"
+				<h:selectOneMenu value="#{frequenciaMensalMBean.mesAnoFrequencia}"
 					id="mes_ano">
 					<f:ajax event="change" render="dia_atividade" />
+					<f:selectItem itemLabel="Selecione" />
 					<f:selectItems value="#{frequenciaMensalMBean.mesAnoPossiveis}"
 						var="mesAno" itemLabel="#{mesAno}" itemValue="#{mesAno}" />
-					<f:convertDateTime pattern="ddMMyyyyHHmmssSS" locale = "pt_BR" timeZone="UTC" />
+					<f:convertDateTime pattern="yyyyMMddHHmmssSS" locale="pt_BR"
+						timeZone="UTC" />
+					<!--  <f:convertDateTime pattern="ddMMyyyyHHmmssSS" locale = "pt_BR" timeZone="UTC" />-->
 				</h:selectOneMenu>
 			</h:panelGrid>
 			<h:outputLabel value="Descrição: " for="descricao_id" />
@@ -46,8 +48,11 @@
 			<h:outputLabel value="Data : " for="dia_atividade" />
 			<h:selectOneMenu value="#{frequenciaMensalMBean.diaAtividade}"
 				id="dia_atividade">
+				<f:selectItem itemLabel="Selecione" />
 				<f:selectItems value="#{frequenciaMensalMBean.diasDoMes}" var="dia"
 					itemLabel="#{dia}" itemValue="#{dia}" />
+				<!-- <f:convertDateTime pattern="yyyyMMddHHmmssSS" locale="pt_BR"
+					timeZone="UTC" /> -->
 			</h:selectOneMenu>
 
 		</fieldset>
