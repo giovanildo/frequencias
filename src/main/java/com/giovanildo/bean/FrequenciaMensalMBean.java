@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.faces.model.SelectItem;
 import javax.faces.view.ViewScoped;
@@ -22,13 +23,6 @@ import com.giovanildo.models.SituacaoFrequenciaMensal;
 @ViewScoped
 public class FrequenciaMensalMBean implements Serializable {
 
-	/**
-	 * criar objetos que irão ser manipulados criar atributos que auxiliam na
-	 * manipulação dos objetos criar métodos que lhe retornam listas criar métodos
-	 * crud criar página apontando para métodos desse mbean
-	 * 
-	 */
-
 	private static final long serialVersionUID = 1L;
 	/**
 	 * Frequência Mensal
@@ -43,32 +37,10 @@ public class FrequenciaMensalMBean implements Serializable {
 	private Date horaFimAtividade;
 	private String descricaoAtividade;
 
-//	/**
-//	 * @author giovanildo
-//	 * @param dataHoraDigitadaInicial
-//	 * @param dataFinalDigitada
-//	 * @param dataIniciaJaExistente
-//	 * @param dataFinalJaExistente
-//	 * @return se as datas horas estas repetidas
-//	 */
-//	private boolean comparaIntervalosDeDataHora(Date dataHoraDigitadaInicial, Date dataDigitadaFinal,
-//			Date dataInicialJaExistente, Date dataFinalJaExistente) {
-//		try {
-//			Interval intervalDigitado = new Interval(new DateTime(dataHoraDigitadaInicial),
-//					new DateTime(dataDigitadaFinal));
-//			Interval intervaloNoBancoDeDados = new Interval(new DateTime(dataInicialJaExistente),
-//					new DateTime(dataFinalJaExistente));
-//
-//			ReadableInterval readableInterval = intervaloNoBancoDeDados;
-//
-//			if (intervalDigitado.overlaps(readableInterval)) {
-//				return true;
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return false;
-//	}
+	public TimeZone getTimeZone() {
+		TimeZone timeZone = TimeZone.getDefault();
+		return timeZone;
+	}
 
 	public List<AtividadePesquisa> getAtividadesPesquisa() {
 		return frequenciaMensal.getAtividades();
@@ -97,7 +69,7 @@ public class FrequenciaMensalMBean implements Serializable {
 		aDateTime.set(Calendar.DAY_OF_MONTH, aData.get(Calendar.DAY_OF_MONTH));
 		aDateTime.set(Calendar.MONTH, aData.get(Calendar.MONTH));
 		aDateTime.set(Calendar.YEAR, aData.get(Calendar.YEAR));
-		aDateTime.set(Calendar.HOUR, aHora.get(Calendar.HOUR));
+		aDateTime.set(Calendar.HOUR_OF_DAY, aHora.get(Calendar.HOUR_OF_DAY));
 		aDateTime.set(Calendar.MINUTE, aHora.get(Calendar.MINUTE));
 		aDateTime.set(Calendar.SECOND, aHora.get(Calendar.SECOND));
 

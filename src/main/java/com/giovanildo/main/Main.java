@@ -1,25 +1,21 @@
 package com.giovanildo.main;
 
-import com.giovanildo.dao.DAO;
-import com.giovanildo.models.AtividadePesquisa;
-import com.giovanildo.models.FrequenciaMensal;
-import com.giovanildo.models.PlanoTrabalho;
-import com.giovanildo.models.SituacaoFrequenciaMensal;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class Main {
 	public static void main(String[] args) {
-		for (PlanoTrabalho daVez : new DAO<PlanoTrabalho>(PlanoTrabalho.class).listaTodos()) {
-			System.out.println(daVez.getDescricao());
-		}
-		for (FrequenciaMensal daVez : new DAO<FrequenciaMensal>(FrequenciaMensal.class).listaTodos()) {
-			System.out.println(daVez.getDescricao());
-		}
-		for (AtividadePesquisa daVez : new DAO<AtividadePesquisa>(AtividadePesquisa.class).listaTodos()) {
-			System.out.println(daVez.getDescricao());
-		}
-		for (SituacaoFrequenciaMensal daVez : new DAO<SituacaoFrequenciaMensal>(SituacaoFrequenciaMensal.class).listaTodos()) {
-			System.out.println(daVez.getSituacao());
-		}
+		Calendar aData = new GregorianCalendar();
+		
+		System.out.println(aData.getTimeZone());
+		
+		Date date = new Date();
+		
+		aData.setTime(date);
+		System.out.println(aData.getTimeZone());
+		
+		
 		
 	}
 
