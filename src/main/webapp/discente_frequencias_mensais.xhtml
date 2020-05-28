@@ -32,7 +32,7 @@
 					<f:selectItems value="#{frequenciaMensalMBean.mesAnoPossiveis}"
 						var="mesAno" itemLabel="#{mesAno}" itemValue="#{mesAno}" />
 					<f:convertDateTime pattern="yyyyMMddHHmmssSS" locale="pt_BR"
-						timeZone="UTC" />
+						timeZone="America/Fortaleza" />
 					<!--  <f:convertDateTime pattern="ddMMyyyyHHmmssSS" locale = "pt_BR" timeZone="UTC" />-->
 				</h:selectOneMenu>
 			</h:panelGrid>
@@ -52,7 +52,7 @@
 				<f:selectItems value="#{frequenciaMensalMBean.diasDoMes}" var="dia"
 					itemLabel="#{dia}" itemValue="#{dia}" />
 				<f:convertDateTime pattern="yyyyMMddHHmmssSS" locale="pt_BR"
-					timeZone="UTC" />
+					timeZone="America/Fortaleza" />
 			</h:selectOneMenu>
 
 			<h:outputLabel value="Hora inicial: " for="hora_inicial" />
@@ -63,7 +63,7 @@
 			<h:outputLabel value="Hora final: " for="hora_final" />
 			<h:inputText id="hora_final"
 				value="#{frequenciaMensalMBean.horaFimAtividade}">
-				<f:convertDateTime pattern="hh:mm" locale="pt_BR" timeZone="UTC" />
+				<f:convertDateTime pattern="hh:mm" locale="pt_BR" timeZone="America/Fortaleza" />
 			</h:inputText>
 			<h:outputLabel value="Descrição: " for="descricao" />
 			<h:inputText id="descricao"
@@ -77,17 +77,17 @@
 			<h:column>
 				<h:outputText value="#{atividade.dataInicio}">
 					<f:convertDateTime pattern="dd/MM/yyyy" locale="pt_BR"
-						timeZone="UTC" />
+						timeZone="America/Fortaleza" />
 				</h:outputText>
 			</h:column>
 			<h:column>
 				<h:outputText value="#{atividade.dataInicio}">
-					<f:convertDateTime pattern="hh:mm" locale="pt_BR" timeZone="UTC" />
+					<f:convertDateTime pattern="hh:mm" locale="pt_BR" timeZone="America/Fortaleza" />
 				</h:outputText>
 			</h:column>
 			<h:column>
 				<h:outputText value="#{atividade.dataTermino}">
-					<f:convertDateTime pattern="hh:mm" locale="pt_BR" timeZone="UTC" />
+					<f:convertDateTime pattern="hh:mm" locale="pt_BR" timeZone="America/Fortaleza" />
 				</h:outputText>
 			</h:column>
 			<h:column>
@@ -100,7 +100,7 @@
 			var="frequenciaMensal">
 			<h:column>
 				<h:outputText value="#{frequenciaMensal.mesAno}">
-					<f:convertDateTime pattern="MM/yyyy" />
+					<f:convertDateTime pattern="MM/yyyy" timeZone="America/Fortaleza"  />
 				</h:outputText>
 			</h:column>
 			<h:column>
