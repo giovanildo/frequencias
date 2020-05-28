@@ -44,7 +44,7 @@ public class AtividadePesquisa {
 		this.id = id;
 	}
 
-	@Column(name = "data_inicio")
+	@Column(name = "data_inicio", columnDefinition = "timestamp with time zone")
 	@Temporal(TemporalType.TIMESTAMP)
 	public Date getDataInicio() {
 		return dataInicio;
@@ -54,7 +54,7 @@ public class AtividadePesquisa {
 		this.dataInicio = dataInicio;
 	}
 
-	@Column(name = "data_termino")
+	@Column(name = "data_termino", columnDefinition = "timestamp with time zone")
 	@Temporal(TemporalType.TIMESTAMP)
 	public Date getDataTermino() {
 		return dataTermino;

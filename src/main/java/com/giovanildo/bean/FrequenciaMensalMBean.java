@@ -85,21 +85,21 @@ public class FrequenciaMensalMBean implements Serializable {
 		this.frequenciaMensal = new FrequenciaMensal();
 	}
 
-	private Date combinaDataEhora(Date date, Date time) {
+	private Date combinaDataEhora(Date data, Date hora) {
 
-		Calendar aDate = Calendar.getInstance();
-		aDate.setTime(date);
+		Calendar aData = new GregorianCalendar();
+		aData.setTime(data);
 
-		Calendar aTime = Calendar.getInstance();
-		aTime.setTime(time);
+		Calendar aHora = new GregorianCalendar();
+		aHora.setTime(hora);
 
-		Calendar aDateTime = Calendar.getInstance();
-		aDateTime.set(Calendar.DAY_OF_MONTH, aDate.get(Calendar.DAY_OF_MONTH));
-		aDateTime.set(Calendar.MONTH, aDate.get(Calendar.MONTH));
-		aDateTime.set(Calendar.YEAR, aDate.get(Calendar.YEAR));
-		aDateTime.set(Calendar.HOUR, aTime.get(Calendar.HOUR));
-		aDateTime.set(Calendar.MINUTE, aTime.get(Calendar.MINUTE));
-		aDateTime.set(Calendar.SECOND, aTime.get(Calendar.SECOND));
+		Calendar aDateTime = new GregorianCalendar();
+		aDateTime.set(Calendar.DAY_OF_MONTH, aData.get(Calendar.DAY_OF_MONTH));
+		aDateTime.set(Calendar.MONTH, aData.get(Calendar.MONTH));
+		aDateTime.set(Calendar.YEAR, aData.get(Calendar.YEAR));
+		aDateTime.set(Calendar.HOUR, aHora.get(Calendar.HOUR));
+		aDateTime.set(Calendar.MINUTE, aHora.get(Calendar.MINUTE));
+		aDateTime.set(Calendar.SECOND, aHora.get(Calendar.SECOND));
 
 		return aDateTime.getTime();
 	}

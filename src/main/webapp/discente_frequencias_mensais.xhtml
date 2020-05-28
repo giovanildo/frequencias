@@ -58,7 +58,7 @@
 			<h:outputLabel value="Hora inicial: " for="hora_inicial" />
 			<h:inputText id="hora_inicial"
 				value="#{frequenciaMensalMBean.horaInicioAtividade}">
-				<f:convertDateTime pattern="hh:mm" locale="pt_BR" timeZone="UTC" />
+				<f:convertDateTime dateStyle="full" pattern="hh:mm" timeZone="America/Fortaleza" />
 			</h:inputText>
 			<h:outputLabel value="Hora final: " for="hora_final" />
 			<h:inputText id="hora_final"

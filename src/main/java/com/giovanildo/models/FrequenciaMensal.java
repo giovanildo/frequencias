@@ -40,7 +40,7 @@ public class FrequenciaMensal implements Serializable {
 		this.id = id;
 	}
 
-	@Column(name = "mes_ano")
+	@Column(name = "mes_ano", columnDefinition = "timestamp with time zone")
 	@Temporal(TemporalType.DATE)
 	public Date getMesAno() {
 		return mesAno;
