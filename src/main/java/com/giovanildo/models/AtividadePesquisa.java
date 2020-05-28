@@ -10,13 +10,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "atividade_pesquisa", schema = "pesquisa", uniqueConstraints = {})
 public class AtividadePesquisa {
-	/**
-	 * id
-	 */
 	private int id;
 	private FrequenciaMensal frequenciaMensal;
 	private Date dataInicio;
@@ -29,11 +28,24 @@ public class AtividadePesquisa {
 		return id;
 	}
 
+	public AtividadePesquisa() {
+		super();
+	}
+
+	public AtividadePesquisa(FrequenciaMensal frequenciaMensal, Date dataInicio, Date dataTermino, String descricao) {
+		super();
+		this.frequenciaMensal = frequenciaMensal;
+		this.dataInicio = dataInicio;
+		this.dataTermino = dataTermino;
+		this.descricao = descricao;
+	}
+
 	public void setId(int id) {
 		this.id = id;
 	}
 
 	@Column(name = "data_inicio")
+	@Temporal(TemporalType.TIMESTAMP)
 	public Date getDataInicio() {
 		return dataInicio;
 	}
@@ -43,6 +55,7 @@ public class AtividadePesquisa {
 	}
 
 	@Column(name = "data_termino")
+	@Temporal(TemporalType.TIMESTAMP)
 	public Date getDataTermino() {
 		return dataTermino;
 	}

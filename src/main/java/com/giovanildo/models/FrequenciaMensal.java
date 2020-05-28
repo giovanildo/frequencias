@@ -1,8 +1,9 @@
 package com.giovanildo.models;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -25,8 +26,8 @@ public class FrequenciaMensal implements Serializable {
 	private String descricao;
 	private PlanoTrabalho planoTrabalho;
 	private Date mesAno;
-	private Collection<SituacaoFrequenciaMensal> historicoSituacao;
-	private Collection<AtividadePesquisa> atividades;
+	private List<SituacaoFrequenciaMensal> historicoSituacao;
+	private List<AtividadePesquisa> atividades;
 
 	@Id
 	@GeneratedValue
@@ -51,6 +52,8 @@ public class FrequenciaMensal implements Serializable {
 
 	public FrequenciaMensal() {
 		super();
+		this.atividades = new ArrayList<AtividadePesquisa>();
+		this.historicoSituacao = new ArrayList<SituacaoFrequenciaMensal>();
 	}
 
 	@Column(name = "descricao")
@@ -63,11 +66,11 @@ public class FrequenciaMensal implements Serializable {
 	}
 
 	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, mappedBy = "frequenciaMensal")
-	public Collection<SituacaoFrequenciaMensal> getHistoricoSituacao() {
+	public List<SituacaoFrequenciaMensal> getHistoricoSituacao() {
 		return historicoSituacao;
 	}
 
-	public void setHistoricoSituacao(Collection<SituacaoFrequenciaMensal> historicoSituacao) {
+	public void setHistoricoSituacao(List<SituacaoFrequenciaMensal> historicoSituacao) {
 		this.historicoSituacao = historicoSituacao;
 	}
 
@@ -82,11 +85,11 @@ public class FrequenciaMensal implements Serializable {
 	}
 
 	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, mappedBy = "frequenciaMensal")
-	public Collection<AtividadePesquisa> getAtividades() {
+	public List<AtividadePesquisa> getAtividades() {
 		return atividades;
 	}
 
-	public void setAtividades(Collection<AtividadePesquisa> atividades) {
+	public void setAtividades(List<AtividadePesquisa> atividades) {
 		this.atividades = atividades;
 	}
 
