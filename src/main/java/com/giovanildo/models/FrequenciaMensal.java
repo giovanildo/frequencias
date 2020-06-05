@@ -18,11 +18,13 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.annotations.Fetch;
+
 @Entity
 @Table(name = "frequencia_mensal", schema = "pesquisa", uniqueConstraints = {})
 public class FrequenciaMensal implements Serializable {
 	private static final long serialVersionUID = 1L;
-	private int id;
+	private Integer id;
 	private String descricao;
 	private PlanoTrabalho planoTrabalho;
 	private Date mesAno;
@@ -31,12 +33,12 @@ public class FrequenciaMensal implements Serializable {
 
 	@Id
 	@GeneratedValue
-	@Column(name = "id_frequencia_mensal")
-	public int getId() {
+	@Column(name = "id_frequencia_mensal", unique = true, nullable = false, insertable = true, updatable = true)
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
@@ -65,7 +67,8 @@ public class FrequenciaMensal implements Serializable {
 		this.descricao = descricao;
 	}
 
-	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, mappedBy = "frequenciaMensal")
+	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, mappedBy = "frequenciaMensal")
+	@Fetch(org.hibernate.annotations.FetchMode.SUBSELECT)//https://www.guj.com.br/t/hibernate-cannot-simultaneously-fetch-multiple-bags/290551/17
 	public List<SituacaoFrequenciaMensal> getHistoricoSituacao() {
 		return historicoSituacao;
 	}
@@ -84,7 +87,8 @@ public class FrequenciaMensal implements Serializable {
 		this.planoTrabalho = planoTrabalho;
 	}
 
-	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, mappedBy = "frequenciaMensal")
+	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, mappedBy = "frequenciaMensal")
+	@Fetch(org.hibernate.annotations.FetchMode.SUBSELECT)//https://www.guj.com.br/t/hibernate-cannot-simultaneously-fetch-multiple-bags/290551/17
 	public List<AtividadePesquisa> getAtividades() {
 		return atividades;
 	}

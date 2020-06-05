@@ -17,6 +17,7 @@ import com.giovanildo.dao.DAO;
 import com.giovanildo.models.AtividadePesquisa;
 import com.giovanildo.models.FrequenciaMensal;
 import com.giovanildo.models.PlanoTrabalho;
+import com.giovanildo.models.Situacao;
 import com.giovanildo.models.SituacaoFrequenciaMensal;
 
 @Named
@@ -50,10 +51,31 @@ public class FrequenciaMensalMBean implements Serializable {
 		return new DAO<FrequenciaMensal>(FrequenciaMensal.class).listaTodos();
 	}
 
+	public void editarFrequenciaMensal(FrequenciaMensal frequencia) {
+		this.frequenciaMensal = frequencia;
+		this.planoTrabalhoId = frequencia.getPlanoTrabalho().getId();
+		this.mesAnoFrequencia = frequencia.getMesAno();
+	}
+
+	public void excluirFrequenciaMensal(FrequenciaMensal frequencia) {
+		new DAO<FrequenciaMensal>(FrequenciaMensal.class).remove(frequencia);
+	}
+
+	public void enviarFrequenciaMensal() {
+		SituacaoFrequenciaMensal situacao = new SituacaoFrequenciaMensal(frequenciaMensal, Situacao.ENVIADA);
+		new DAO<SituacaoFrequenciaMensal>(SituacaoFrequenciaMensal.class).adiciona(situacao);
+	}
+
 	public void salvarFrequenciaMensal() {
 		frequenciaMensal.setPlanoTrabalho(new DAO<PlanoTrabalho>(PlanoTrabalho.class).buscaPorId(planoTrabalhoId));
 		frequenciaMensal.setMesAno(this.mesAnoFrequencia);
-		new DAO<FrequenciaMensal>(FrequenciaMensal.class).adiciona(this.frequenciaMensal);
+		frequenciaMensal.getHistoricoSituacao().add(new SituacaoFrequenciaMensal(frequenciaMensal));
+		if(frequenciaMensal.getId() == null) {
+			new DAO<FrequenciaMensal>(FrequenciaMensal.class).adiciona(this.frequenciaMensal);
+		} else {
+			new DAO<FrequenciaMensal>(FrequenciaMensal.class).atualiza(this.frequenciaMensal);
+		}
+		
 		this.frequenciaMensal = new FrequenciaMensal();
 	}
 
@@ -65,15 +87,15 @@ public class FrequenciaMensalMBean implements Serializable {
 		Calendar aHora = new GregorianCalendar();
 		aHora.setTime(hora);
 
-		Calendar aDateTime = new GregorianCalendar();
-		aDateTime.set(Calendar.DAY_OF_MONTH, aData.get(Calendar.DAY_OF_MONTH));
-		aDateTime.set(Calendar.MONTH, aData.get(Calendar.MONTH));
-		aDateTime.set(Calendar.YEAR, aData.get(Calendar.YEAR));
-		aDateTime.set(Calendar.HOUR_OF_DAY, aHora.get(Calendar.HOUR_OF_DAY));
-		aDateTime.set(Calendar.MINUTE, aHora.get(Calendar.MINUTE));
-		aDateTime.set(Calendar.SECOND, aHora.get(Calendar.SECOND));
+		Calendar aDataHora = new GregorianCalendar();
+		aDataHora.set(Calendar.DAY_OF_MONTH, aData.get(Calendar.DAY_OF_MONTH));
+		aDataHora.set(Calendar.MONTH, aData.get(Calendar.MONTH));
+		aDataHora.set(Calendar.YEAR, aData.get(Calendar.YEAR));
+		aDataHora.set(Calendar.HOUR_OF_DAY, aHora.get(Calendar.HOUR_OF_DAY));
+		aDataHora.set(Calendar.MINUTE, aHora.get(Calendar.MINUTE));
+		aDataHora.set(Calendar.SECOND, aHora.get(Calendar.SECOND));
 
-		return aDateTime.getTime();
+		return aDataHora.getTime();
 	}
 
 	public void incluirAtividadeFrequencia() {
@@ -83,6 +105,11 @@ public class FrequenciaMensalMBean implements Serializable {
 
 		this.getAtividadesPesquisa()
 				.add(new AtividadePesquisa(this.frequenciaMensal, dataInicio, dataFinal, this.descricaoAtividade));
+
+		this.descricaoAtividade = null;
+		this.diaAtividade = null;
+		this.horaFimAtividade = null;
+		this.horaInicioAtividade = null;
 	}
 
 	/**
@@ -171,14 +198,23 @@ public class FrequenciaMensalMBean implements Serializable {
 		this.frequenciaMensal = new FrequenciaMensal();
 	}
 
-	public SituacaoFrequenciaMensal getSituacaoAtual() {
+	public String getSituacaoAtual() {
+
+		if (this.frequenciaMensal.getHistoricoSituacao().isEmpty()) {
+			return " Não Preenchida ";
+		}
+
 		SituacaoFrequenciaMensal maiorData = null;
 		for (SituacaoFrequenciaMensal daVez : this.frequenciaMensal.getHistoricoSituacao()) {
+			if (maiorData == null) {
+				maiorData = daVez;
+			}
 			if (daVez.getData().after(maiorData.getData())) {
 				maiorData = daVez;
 			}
 		}
-		return maiorData;
+
+		return maiorData.getSituacao().name();
 	}
 
 	public List<PlanoTrabalho> getPlanosTrabalho() {
@@ -240,5 +276,143 @@ public class FrequenciaMensalMBean implements Serializable {
 	public void setMesAnoFrequencia(Date mesAnoFrequencia) {
 		this.mesAnoFrequencia = mesAnoFrequencia;
 	}
+
+	/**
+	 * 
+	 * @return habilitar botão de envio de frequencia
+	 */
+//	public boolean cargaHorariaEhValida() {
+//
+//		long horasFaltando = horasFaltando();
+//
+//		if (horasFaltando < 0) {
+//			addMensagem(MensagensArquitetura.CONTEUDO_INVALIDO,
+//					"A carga horária realizada não pode ser maior do que a carga horária exigida");
+//			return false;
+//		}
+//
+//		if (horasFaltando == 0) {
+//			addMensagem(MensagensArquitetura.CADASTRADO_COM_SUCESSO,
+//					"Parabéns!! Você já pode enviar sua frequência ");
+//			this.setEnvioFrequencia(false);
+//		}
+//
+//		if (horasFaltando > 0) {
+//			addMensagem(MensagensArquitetura.CAMPO_OBRIGATORIO_NAO_INFORMADO,
+//					"Falta " + conversorMsHoraPorExtenso(horasFaltando)
+//							+ " trabalhadas para poder enviar a frequencia");
+//			this.setEnvioFrequencia(true);
+//		}
+//		return true;
+//
+//	}
+
+	/**
+	 * @param calendarioInicio
+	 * @param calendarioFim
+	 */
+//	private boolean atividadeFrequenciaEhValida(Calendar calendarioInicio,
+//			Calendar calendarioFim) {
+//		if (obj.getDescricao().isEmpty()) {
+//			addMensagem(MensagensArquitetura.CONTEUDO_INVALIDO,
+//					"Descrição não pode ser vazia");
+//			return false;
+//		}
+//		boolean mesAnoEhValido = ((calendarioInicio.get(Calendar.MONTH) == this.mes - 1 && calendarioFim
+//				.get(Calendar.MONTH) == this.mes - 1) && (calendarioInicio
+//				.get(Calendar.YEAR) == this.ano && calendarioFim
+//				.get(Calendar.YEAR) == this.ano));
+//		if (!mesAnoEhValido) {
+//			addMensagem(MensagensArquitetura.CONTEUDO_INVALIDO,
+//					"O mês deve ser: " + this.mes + " e o ano " + this.ano);
+//			return false;
+//		}
+//
+//		if (calendarioFim.before(calendarioInicio)) {
+//			addMensagem(MensagensArquitetura.CONTEUDO_INVALIDO,
+//					"Hora Final deve ser maior que a hora inicial");
+//			return false;
+//		}
+//
+//		if (dataHoraJaCadastrada(calendarioInicio.getTime(),
+//				calendarioFim.getTime(), pegarFrequenciasNoBanco())) {
+//			addMensagem(MensagensArquitetura.OBJETO_JA_CADASTRADO,
+//					"Data e Hora");
+//			return false;
+//		}
+//
+//		long horasFaltandoIncluidoAdigitadaAgora = horasFaltandoIncluidoAdigitadaAgora();
+//
+//		if (horasFaltandoIncluidoAdigitadaAgora < 0) {
+//			addMensagem(MensagensArquitetura.CONTEUDO_INVALIDO,
+//					"A carga horária realizada não pode ser maior do que a carga horária exigida");
+//			return false;
+//		}
+//
+//		if (horasFaltandoIncluidoAdigitadaAgora == 0) {
+//			addMensagem(MensagensArquitetura.CADASTRADO_COM_SUCESSO,
+//					"Parabéns!! Você já pode enviar sua frequência ");
+//			this.setEnvioFrequencia(false);
+//		}
+//
+//		if (horasFaltandoIncluidoAdigitadaAgora > 0) {
+//			addMensagem(
+//					MensagensArquitetura.CAMPO_OBRIGATORIO_NAO_INFORMADO,
+//					"Falta "
+//							+ conversorMsHoraPorExtenso(horasFaltandoIncluidoAdigitadaAgora)
+//							+ " trabalhadas para poder enviar a frequencia");
+//			this.setEnvioFrequencia(true);
+//		}
+//		return true;
+//	}
+
+	/**
+	 * @author giovanildo
+	 * @param dataInicialDigitada
+	 * @param dataFinalDigitada
+	 * @param lista
+	 * @return verifica se a data hora inicial ou hora final já foram digitados
+	 *         antes
+	 */
+//	private boolean dataHoraJaCadastrada(Date dataInicialDigitada,
+//			Date dataFinalDigitada,
+//			Collection<AtividadeFrequenciaPesquisa> lista) {
+//		for (AtividadeFrequenciaPesquisa daVez : lista) {
+//			if (comparaIntervalosDeDataHora(dataInicialDigitada,
+//					dataFinalDigitada, daVez.getDataInicio(),
+//					daVez.getDataTerminio())) {
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
+
+	/**
+	 * @author giovanildo
+	 * @param dataHoraDigitadaInicial
+	 * @param dataFinalDigitada
+	 * @param dataIniciaJaExistente
+	 * @param dataFinalJaExistente
+	 * @return se as datas horas estas repetidas
+	 */
+//	private boolean comparaIntervalosDeDataHora(Date dataHoraDigitadaInicial,
+//			Date dataDigitadaFinal, Date dataInicialJaExistente,
+//			Date dataFinalJaExistente) {
+//		try {
+//			Interval intervalDigitado = new Interval(new DateTime(
+//					dataHoraDigitadaInicial), new DateTime(dataDigitadaFinal));
+//			Interval intervaloNoBancoDeDados = new Interval(new DateTime(
+//					dataInicialJaExistente), new DateTime(dataFinalJaExistente));
+//
+//			ReadableInterval readableInterval = intervaloNoBancoDeDados;
+//
+//			if (intervalDigitado.overlaps(readableInterval)) {
+//				return true;
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return false;
+//	}
 
 }

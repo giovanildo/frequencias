@@ -24,6 +24,7 @@ public class AtividadePesquisa {
 
 	@Id
 	@GeneratedValue
+	@Column(name = "id_atividade_pesquisa", unique = true, nullable = false, insertable = true, updatable = true)
 	public int getId() {
 		return id;
 	}

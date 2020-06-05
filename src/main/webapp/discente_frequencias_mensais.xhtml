@@ -7,7 +7,6 @@
 	xmlns:f="http://xmlns.jcp.org/jsf/core"
 	xmlns:p="http://primefaces.org/ui">
 <h:head />
-
 <h:body>
 	<h1>Frequencias Mensais</h1>
 	<h:form id="form">
@@ -39,10 +38,14 @@
 			<h:outputLabel value="Descrição: " for="descricao_id" />
 			<h:inputText id="descricao_id"
 				value="#{frequenciaMensalMBean.frequenciaMensal.descricao}" />
+			<h:outputLabel value="Situação: " for="situacao" />
+			<h:outputText id="situacao"
+				value="#{frequenciaMensalMBean.situacaoAtual}" />
 			<h:commandButton value="Salvar"
 				actionListener="#{frequenciaMensalMBean.salvarFrequenciaMensal}" />
+			<h:commandButton value="Enviar Frequencia"
+				actionListener="#{frequenciaMensalMBean.enviarFrequenciaMensal}" />
 		</fieldset>
-
 		<fieldset>
 			<h2>Cadastro de Atividades</h2>
 			<h:outputLabel value="Data : " for="dia_atividade" />
@@ -54,7 +57,6 @@
 				<f:convertDateTime pattern="yyyyMMddHHmmssSS"
 					timeZone="#{frequenciaMensalMBean.timeZone}" />
 			</h:selectOneMenu>
-
 			<h:outputLabel value="Hora inicial: " for="hora_inicial" />
 			<h:inputText id="hora_inicial"
 				value="#{frequenciaMensalMBean.horaInicioAtividade}">
@@ -64,7 +66,7 @@
 			<h:outputLabel value="Hora final: " for="hora_final" />
 			<h:inputText id="hora_final"
 				value="#{frequenciaMensalMBean.horaFimAtividade}">
-				<f:convertDateTime type="time" pattern="HH:mm" 
+				<f:convertDateTime type="time" pattern="HH:mm"
 					timeZone="#{frequenciaMensalMBean.timeZone}" />
 			</h:inputText>
 			<h:outputLabel value="Descrição: " for="descricao" />
@@ -72,6 +74,7 @@
 				value="#{frequenciaMensalMBean.descricaoAtividade}" />
 			<h:commandButton value="Incluir Atividade"
 				actionListener="#{frequenciaMensalMBean.incluirAtividadeFrequencia}" />
+
 		</fieldset>
 		<h3>Atividades Incluídas</h3>
 		<h:dataTable value="#{frequenciaMensalMBean.atividadesPesquisa}"
@@ -98,7 +101,6 @@
 				<h:outputText value="#{atividade.descricao}" />
 			</h:column>
 		</h:dataTable>
-
 		<h2>Frequências mensais salvas</h2>
 		<h:dataTable value="#{frequenciaMensalMBean.frequenciasMensais}"
 			var="frequenciaMensal">
@@ -110,6 +112,15 @@
 			</h:column>
 			<h:column>
 				<h:outputText value="#{frequenciaMensal.descricao}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">excluir</f:facet>
+				<h:commandLink value="excluir"
+					actionListener="#{frequenciaMensalMBean.excluirFrequenciaMensal(frequenciaMensal)}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">editar</f:facet>
+				<h:commandLink value = "editar" actionListener="#{frequenciaMensalMBean.editarFrequenciaMensal(frequenciaMensal)}"/>
 			</h:column>
 		</h:dataTable>
 	</h:form>

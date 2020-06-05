@@ -12,10 +12,78 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "situacao_frequencia_mensal", schema = "pesquisa", uniqueConstraints = {})
 public class SituacaoFrequenciaMensal {
+
+	private int id;
+	private FrequenciaMensal frequenciaMensal;
+	private Situacao situacao;
+	private Date data;
+	
+	public SituacaoFrequenciaMensal() {
+		super();
+	}
+
+	public SituacaoFrequenciaMensal(FrequenciaMensal frequenciaMensal) {
+		super();
+		this.frequenciaMensal = frequenciaMensal;
+		this.situacao = Situacao.PREENCHENDO;
+		this.data = new Date();
+	}
+
+	public SituacaoFrequenciaMensal(FrequenciaMensal frequenciaMensal, Situacao situacao) {
+		super();
+		this.frequenciaMensal = frequenciaMensal;
+		this.situacao = situacao;
+		this.data = new Date();
+	}
+
+	@Id
+	@GeneratedValue
+	@Column(name = "id_situacao_frequencia_mensal", unique = true, nullable = false, insertable = true, updatable = true)
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	@Enumerated(EnumType.ORDINAL)
+	public Situacao getSituacao() {
+		return situacao;
+	}
+
+	public void setSituacao(Situacao situacao) {
+		this.situacao = situacao;
+	}
+
+	@Column(name = "data", columnDefinition = "timestamp with time zone")
+	@Temporal(TemporalType.TIMESTAMP)
+	public Date getData() {
+		return data;
+	}
+
+	public void setData(Date data) {
+		this.data = data;
+	}
+
+	@ManyToOne(cascade = {}, fetch = FetchType.LAZY)
+	@JoinColumn(name = "id_frequencia_mensal", unique = false, nullable = true, insertable = true, updatable = true)
+	public FrequenciaMensal getFrequenciaMensal() {
+		return frequenciaMensal;
+	}
+
+
+
+	public void setFrequenciaMensal(FrequenciaMensal frequenciaMensal) {
+		this.frequenciaMensal = frequenciaMensal;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -51,49 +119,5 @@ public class SituacaoFrequenciaMensal {
 		if (situacao != other.situacao)
 			return false;
 		return true;
-	}
-
-	private int id;
-	private FrequenciaMensal frequenciaMensal;
-	private Situacao situacao;
-	private Date data;
-
-	@Id
-	@GeneratedValue
-	@Column(name = "id_situacao_frequencia_mensal")
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	@Enumerated(EnumType.ORDINAL)
-	public Situacao getSituacao() {
-		return situacao;
-	}
-
-	public void setSituacao(Situacao situacao) {
-		this.situacao = situacao;
-	}
-
-	@Column(name = "data")
-	public Date getData() {
-		return data;
-	}
-
-	public void setData(Date data) {
-		this.data = data;
-	}
-
-	@ManyToOne(cascade = {}, fetch = FetchType.LAZY)
-	@JoinColumn(name = "id_frequencia_mensal", unique = false, nullable = true, insertable = true, updatable = true)
-	public FrequenciaMensal getFrequenciaMensal() {
-		return frequenciaMensal;
-	}
-
-	public void setFrequenciaMensal(FrequenciaMensal frequenciaMensal) {
-		this.frequenciaMensal = frequenciaMensal;
 	}
 }

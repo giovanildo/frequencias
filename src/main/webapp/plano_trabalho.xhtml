@@ -17,25 +17,50 @@
 			<legend>Dados Plano de Trabalho</legend>
 			<h:outputLabel value="Descrição" for="descricao" />
 			<h:inputText value="#{planoTrabalhoMBean.planoTrabalho.descricao}" />
+			<h:outputLabel value="Data inicio: " for="data_inicio" />
+			<h:inputText id="data_inicio"
+				value="#{planoTrabalhoMBean.planoTrabalho.dataInicio}">
+				<f:convertDateTime pattern="dd/MM/yyyy" />
+			</h:inputText>
+			<h:outputLabel value="Data fim: " for="data_fim" />
+			<h:inputText id="data_fim"
+				value="#{planoTrabalhoMBean.planoTrabalho.dataFim}">
+				<f:convertDateTime pattern="dd/MM/yyyy" />
+			</h:inputText>
 		</fieldset>
 		<h:commandButton value="Salvar Plano"
 			actionListener="#{planoTrabalhoMBean.salvar}" />
 	</h:form>
-	<h:dataTable value="#{planoTrabalhoMBean.planosTrabalho}"
-		var="planoTrabalho">
-		<h:column>
-			<h:outputText value="#{planoTrabalho.descricao}" />
-		</h:column>
-		<h:column>
-			<h:outputText value="#{planoTrabalho.dataInicio.time}" >
-				<f:convertDateTime pattern = "dd/MM/yyyy"/>
-			</h:outputText>
-		</h:column>
-		<h:column>
-			<h:outputText value="#{planoTrabalho.dataFim.time}" >
-				<f:convertDateTime pattern = "dd/MM/yyyy"/>
-			</h:outputText>
-		</h:column>
-	</h:dataTable>
+	<h:form>
+		<h:dataTable value="#{planoTrabalhoMBean.planosTrabalho}"
+			var="planoTrabalho">
+			<h:column>
+				<f:facet name="header">  Descrição  </f:facet>
+				<h:outputText value="#{planoTrabalho.descricao}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">  Data Inicial  </f:facet>
+				<h:outputText value="#{planoTrabalho.dataInicio}">
+					<f:convertDateTime pattern="dd/MM/yyyy" />
+				</h:outputText>
+			</h:column>
+			<h:column>
+				<f:facet name="header">  Data Final  </f:facet>
+				<h:outputText value="#{planoTrabalho.dataFim}">
+					<f:convertDateTime pattern="dd/MM/yyyy" />
+				</h:outputText>
+			</h:column>
+			<h:column>
+				<f:facet name="header"> Remover </f:facet>
+				<h:commandLink value="  |   remover"
+					actionListener="#{planoTrabalhoMBean.excluirPlano(planoTrabalho)}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header"> Editar </f:facet>
+				<h:commandLink value="  |   editar"
+					actionListener="#{planoTrabalhoMBean.editarPlano(planoTrabalho)}" />
+			</h:column>
+		</h:dataTable>
+	</h:form>
 </h:body>
 </html>
