@@ -38,6 +38,32 @@ public class FrequenciaMensalMBean implements Serializable {
 	private Date horaFimAtividade;
 	private String descricaoAtividade;
 
+	public FrequenciaMensalMBean() {
+		super();
+		this.frequenciaMensal = new FrequenciaMensal();
+	}
+
+	public String getSituacaoAtual() {
+
+		return "SEM SITUAÇÃO";
+
+//		if (this.frequenciaMensal.getHistoricoSituacao().isEmpty()) {
+//			return " Não Preenchida ";
+//		}
+//
+//		SituacaoFrequenciaMensal maiorData = null;
+//		for (SituacaoFrequenciaMensal daVez : this.frequenciaMensal.getHistoricoSituacao()) {
+//			if (maiorData == null) {
+//				maiorData = daVez;
+//			}
+//			if (daVez.getData().after(maiorData.getData())) {
+//				maiorData = daVez;
+//			}
+//		}
+//
+//		return maiorData.getSituacao().name();
+	}
+
 	public TimeZone getTimeZone() {
 		TimeZone timeZone = TimeZone.getDefault();
 		return timeZone;
@@ -61,6 +87,11 @@ public class FrequenciaMensalMBean implements Serializable {
 		new DAO<FrequenciaMensal>(FrequenciaMensal.class).remove(frequencia);
 	}
 
+	public void excluirAtividade(AtividadePesquisa atividade) {
+		this.frequenciaMensal.removeAtividade(atividade);
+		new DAO<AtividadePesquisa>(AtividadePesquisa.class).remove(atividade);
+	}
+
 	public void enviarFrequenciaMensal() {
 		SituacaoFrequenciaMensal situacao = new SituacaoFrequenciaMensal(frequenciaMensal, Situacao.ENVIADA);
 		new DAO<SituacaoFrequenciaMensal>(SituacaoFrequenciaMensal.class).adiciona(situacao);
@@ -69,13 +100,13 @@ public class FrequenciaMensalMBean implements Serializable {
 	public void salvarFrequenciaMensal() {
 		frequenciaMensal.setPlanoTrabalho(new DAO<PlanoTrabalho>(PlanoTrabalho.class).buscaPorId(planoTrabalhoId));
 		frequenciaMensal.setMesAno(this.mesAnoFrequencia);
-		frequenciaMensal.getHistoricoSituacao().add(new SituacaoFrequenciaMensal(frequenciaMensal));
-		if(frequenciaMensal.getId() == null) {
+		if (frequenciaMensal.getId() == null) {
+//			frequenciaMensal.getHistoricoSituacao().add(new SituacaoFrequenciaMensal(frequenciaMensal));
 			new DAO<FrequenciaMensal>(FrequenciaMensal.class).adiciona(this.frequenciaMensal);
 		} else {
 			new DAO<FrequenciaMensal>(FrequenciaMensal.class).atualiza(this.frequenciaMensal);
 		}
-		
+
 		this.frequenciaMensal = new FrequenciaMensal();
 	}
 
@@ -103,8 +134,9 @@ public class FrequenciaMensalMBean implements Serializable {
 		Date dataInicio = combinaDataEhora(this.diaAtividade, this.horaInicioAtividade);
 		Date dataFinal = combinaDataEhora(this.diaAtividade, this.horaFimAtividade);
 
-		this.getAtividadesPesquisa()
-				.add(new AtividadePesquisa(this.frequenciaMensal, dataInicio, dataFinal, this.descricaoAtividade));
+		AtividadePesquisa atividade;
+		atividade = new AtividadePesquisa(this.frequenciaMensal, dataInicio, dataFinal, this.descricaoAtividade);
+		this.frequenciaMensal.adicionaAtividade(atividade);
 
 		this.descricaoAtividade = null;
 		this.diaAtividade = null;
@@ -191,30 +223,6 @@ public class FrequenciaMensalMBean implements Serializable {
 			calendarioInicial.add(oQueIncrementar, incremento);
 		}
 		return datasEmUmPeriodo;
-	}
-
-	public FrequenciaMensalMBean() {
-		super();
-		this.frequenciaMensal = new FrequenciaMensal();
-	}
-
-	public String getSituacaoAtual() {
-
-		if (this.frequenciaMensal.getHistoricoSituacao().isEmpty()) {
-			return " Não Preenchida ";
-		}
-
-		SituacaoFrequenciaMensal maiorData = null;
-		for (SituacaoFrequenciaMensal daVez : this.frequenciaMensal.getHistoricoSituacao()) {
-			if (maiorData == null) {
-				maiorData = daVez;
-			}
-			if (daVez.getData().after(maiorData.getData())) {
-				maiorData = daVez;
-			}
-		}
-
-		return maiorData.getSituacao().name();
 	}
 
 	public List<PlanoTrabalho> getPlanosTrabalho() {

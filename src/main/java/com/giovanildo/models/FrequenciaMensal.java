@@ -24,16 +24,30 @@ import org.hibernate.annotations.Fetch;
 @Table(name = "frequencia_mensal", schema = "pesquisa", uniqueConstraints = {})
 public class FrequenciaMensal implements Serializable {
 	private static final long serialVersionUID = 1L;
-	private Integer id;
-	private String descricao;
-	private PlanoTrabalho planoTrabalho;
-	private Date mesAno;
-	private List<SituacaoFrequenciaMensal> historicoSituacao;
-	private List<AtividadePesquisa> atividades;
-
 	@Id
 	@GeneratedValue
 	@Column(name = "id_frequencia_mensal", unique = true, nullable = false, insertable = true, updatable = true)
+	private Integer id;
+
+	@Column(name = "descricao")
+	private String descricao;
+
+	@ManyToOne(cascade = {}, fetch = FetchType.LAZY)
+	@JoinColumn(name = "id_plano_trabalho", unique = false, nullable = true, insertable = true, updatable = true)
+	private PlanoTrabalho planoTrabalho;
+
+	@Column(name = "mes_ano", columnDefinition = "timestamp with time zone")
+	@Temporal(TemporalType.DATE)
+	private Date mesAno;
+	
+	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, mappedBy = "frequenciaMensal")
+	@Fetch(org.hibernate.annotations.FetchMode.SUBSELECT) // https://www.guj.com.br/t/hibernate-cannot-simultaneously-fetch-multiple-bags/290551/17
+	private List<SituacaoFrequenciaMensal> historicoSituacao;
+
+	@OneToMany(cascade = {
+			CascadeType.ALL }, fetch = FetchType.EAGER, mappedBy = "frequenciaMensal", orphanRemoval = true)
+	private List<AtividadePesquisa> atividades = new ArrayList<AtividadePesquisa>();
+
 	public Integer getId() {
 		return id;
 	}
@@ -42,8 +56,6 @@ public class FrequenciaMensal implements Serializable {
 		this.id = id;
 	}
 
-	@Column(name = "mes_ano", columnDefinition = "timestamp with time zone")
-	@Temporal(TemporalType.DATE)
 	public Date getMesAno() {
 		return mesAno;
 	}
@@ -54,11 +66,9 @@ public class FrequenciaMensal implements Serializable {
 
 	public FrequenciaMensal() {
 		super();
-		this.atividades = new ArrayList<AtividadePesquisa>();
 		this.historicoSituacao = new ArrayList<SituacaoFrequenciaMensal>();
 	}
 
-	@Column(name = "descricao")
 	public String getDescricao() {
 		return descricao;
 	}
@@ -67,8 +77,7 @@ public class FrequenciaMensal implements Serializable {
 		this.descricao = descricao;
 	}
 
-	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, mappedBy = "frequenciaMensal")
-	@Fetch(org.hibernate.annotations.FetchMode.SUBSELECT)//https://www.guj.com.br/t/hibernate-cannot-simultaneously-fetch-multiple-bags/290551/17
+
 	public List<SituacaoFrequenciaMensal> getHistoricoSituacao() {
 		return historicoSituacao;
 	}
@@ -77,8 +86,6 @@ public class FrequenciaMensal implements Serializable {
 		this.historicoSituacao = historicoSituacao;
 	}
 
-	@ManyToOne(cascade = {}, fetch = FetchType.LAZY)
-	@JoinColumn(name = "id_plano_trabalho", unique = false, nullable = true, insertable = true, updatable = true)
 	public PlanoTrabalho getPlanoTrabalho() {
 		return planoTrabalho;
 	}
@@ -87,14 +94,20 @@ public class FrequenciaMensal implements Serializable {
 		this.planoTrabalho = planoTrabalho;
 	}
 
-	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, mappedBy = "frequenciaMensal")
-	@Fetch(org.hibernate.annotations.FetchMode.SUBSELECT)//https://www.guj.com.br/t/hibernate-cannot-simultaneously-fetch-multiple-bags/290551/17
 	public List<AtividadePesquisa> getAtividades() {
 		return atividades;
 	}
 
 	public void setAtividades(List<AtividadePesquisa> atividades) {
 		this.atividades = atividades;
+	}
+
+	public void removeAtividade(AtividadePesquisa atividade) {
+		this.atividades.remove(atividade);
+	}
+
+	public void adicionaAtividade(AtividadePesquisa atividade) {
+		this.atividades.add(atividade);
 	}
 
 	@Override

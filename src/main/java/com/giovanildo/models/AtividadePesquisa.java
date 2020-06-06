@@ -16,15 +16,26 @@ import javax.persistence.TemporalType;
 @Entity
 @Table(name = "atividade_pesquisa", schema = "pesquisa", uniqueConstraints = {})
 public class AtividadePesquisa {
-	private int id;
-	private FrequenciaMensal frequenciaMensal;
-	private Date dataInicio;
-	private Date dataTermino;
-	private String descricao;
-
 	@Id
 	@GeneratedValue
 	@Column(name = "id_atividade_pesquisa", unique = true, nullable = false, insertable = true, updatable = true)
+	private int id;
+
+	@ManyToOne(cascade = {}, fetch = FetchType.LAZY)
+	@JoinColumn(name = "id_frequencia_mensal", unique = false, nullable = true, insertable = true, updatable = true)
+	private FrequenciaMensal frequenciaMensal;
+	
+	@Column(name = "data_inicio", columnDefinition = "timestamp with time zone")
+	@Temporal(TemporalType.TIMESTAMP)	
+	private Date dataInicio;
+
+	@Column(name = "data_termino", columnDefinition = "timestamp with time zone")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date dataTermino;
+	
+	@Column(name = "descricao")
+	private String descricao;
+
 	public int getId() {
 		return id;
 	}
@@ -45,8 +56,7 @@ public class AtividadePesquisa {
 		this.id = id;
 	}
 
-	@Column(name = "data_inicio", columnDefinition = "timestamp with time zone")
-	@Temporal(TemporalType.TIMESTAMP)
+
 	public Date getDataInicio() {
 		return dataInicio;
 	}
@@ -55,8 +65,6 @@ public class AtividadePesquisa {
 		this.dataInicio = dataInicio;
 	}
 
-	@Column(name = "data_termino", columnDefinition = "timestamp with time zone")
-	@Temporal(TemporalType.TIMESTAMP)
 	public Date getDataTermino() {
 		return dataTermino;
 	}
@@ -65,7 +73,7 @@ public class AtividadePesquisa {
 		this.dataTermino = dataTermino;
 	}
 
-	@Column(name = "descricao")
+	
 	public String getDescricao() {
 		return descricao;
 	}
@@ -74,8 +82,7 @@ public class AtividadePesquisa {
 		this.descricao = descricao;
 	}
 
-	@ManyToOne(cascade = {}, fetch = FetchType.LAZY)
-	@JoinColumn(name = "id_frequencia_mensal", unique = false, nullable = true, insertable = true, updatable = true)
+
 	public FrequenciaMensal getFrequenciaMensal() {
 		return frequenciaMensal;
 	}
@@ -88,10 +95,6 @@ public class AtividadePesquisa {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((dataInicio == null) ? 0 : dataInicio.hashCode());
-		result = prime * result + ((dataTermino == null) ? 0 : dataTermino.hashCode());
-		result = prime * result + ((descricao == null) ? 0 : descricao.hashCode());
-		result = prime * result + ((frequenciaMensal == null) ? 0 : frequenciaMensal.hashCode());
 		result = prime * result + id;
 		return result;
 	}
@@ -105,28 +108,12 @@ public class AtividadePesquisa {
 		if (getClass() != obj.getClass())
 			return false;
 		AtividadePesquisa other = (AtividadePesquisa) obj;
-		if (dataInicio == null) {
-			if (other.dataInicio != null)
-				return false;
-		} else if (!dataInicio.equals(other.dataInicio))
-			return false;
-		if (dataTermino == null) {
-			if (other.dataTermino != null)
-				return false;
-		} else if (!dataTermino.equals(other.dataTermino))
-			return false;
-		if (descricao == null) {
-			if (other.descricao != null)
-				return false;
-		} else if (!descricao.equals(other.descricao))
-			return false;
-		if (frequenciaMensal == null) {
-			if (other.frequenciaMensal != null)
-				return false;
-		} else if (!frequenciaMensal.equals(other.frequenciaMensal))
-			return false;
 		if (id != other.id)
 			return false;
 		return true;
 	}
+
+	
+
+	
 }

@@ -18,12 +18,22 @@ import javax.persistence.TemporalType;
 @Entity
 @Table(name = "situacao_frequencia_mensal", schema = "pesquisa", uniqueConstraints = {})
 public class SituacaoFrequenciaMensal {
-
+	@Id
+	@GeneratedValue
+	@Column(name = "id_situacao_frequencia_mensal", unique = true, nullable = false, insertable = true, updatable = true)
 	private int id;
-	private FrequenciaMensal frequenciaMensal;
-	private Situacao situacao;
-	private Date data;
 	
+	@ManyToOne(cascade = {}, fetch = FetchType.LAZY)
+	@JoinColumn(name = "id_frequencia_mensal", unique = false, nullable = true, insertable = true, updatable = true)
+	private FrequenciaMensal frequenciaMensal;
+	
+	@Enumerated(EnumType.ORDINAL)
+	private Situacao situacao;
+
+	@Column(name = "data", columnDefinition = "timestamp with time zone")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date data;
+
 	public SituacaoFrequenciaMensal() {
 		super();
 	}
@@ -42,9 +52,6 @@ public class SituacaoFrequenciaMensal {
 		this.data = new Date();
 	}
 
-	@Id
-	@GeneratedValue
-	@Column(name = "id_situacao_frequencia_mensal", unique = true, nullable = false, insertable = true, updatable = true)
 	public int getId() {
 		return id;
 	}
@@ -52,8 +59,7 @@ public class SituacaoFrequenciaMensal {
 	public void setId(int id) {
 		this.id = id;
 	}
-
-	@Enumerated(EnumType.ORDINAL)
+	
 	public Situacao getSituacao() {
 		return situacao;
 	}
@@ -61,9 +67,7 @@ public class SituacaoFrequenciaMensal {
 	public void setSituacao(Situacao situacao) {
 		this.situacao = situacao;
 	}
-
-	@Column(name = "data", columnDefinition = "timestamp with time zone")
-	@Temporal(TemporalType.TIMESTAMP)
+	
 	public Date getData() {
 		return data;
 	}
@@ -72,13 +76,9 @@ public class SituacaoFrequenciaMensal {
 		this.data = data;
 	}
 
-	@ManyToOne(cascade = {}, fetch = FetchType.LAZY)
-	@JoinColumn(name = "id_frequencia_mensal", unique = false, nullable = true, insertable = true, updatable = true)
 	public FrequenciaMensal getFrequenciaMensal() {
 		return frequenciaMensal;
 	}
-
-
 
 	public void setFrequenciaMensal(FrequenciaMensal frequenciaMensal) {
 		this.frequenciaMensal = frequenciaMensal;
@@ -88,10 +88,7 @@ public class SituacaoFrequenciaMensal {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((data == null) ? 0 : data.hashCode());
-		result = prime * result + ((frequenciaMensal == null) ? 0 : frequenciaMensal.hashCode());
 		result = prime * result + id;
-		result = prime * result + ((situacao == null) ? 0 : situacao.hashCode());
 		return result;
 	}
 
@@ -104,20 +101,9 @@ public class SituacaoFrequenciaMensal {
 		if (getClass() != obj.getClass())
 			return false;
 		SituacaoFrequenciaMensal other = (SituacaoFrequenciaMensal) obj;
-		if (data == null) {
-			if (other.data != null)
-				return false;
-		} else if (!data.equals(other.data))
-			return false;
-		if (frequenciaMensal == null) {
-			if (other.frequenciaMensal != null)
-				return false;
-		} else if (!frequenciaMensal.equals(other.frequenciaMensal))
-			return false;
 		if (id != other.id)
-			return false;
-		if (situacao != other.situacao)
 			return false;
 		return true;
 	}
+
 }

@@ -45,7 +45,7 @@ public class DAO<T> {
 	public T atualiza(T t) {
 		EntityManager em = new JPAUtil().getEntityManager();
 		em.getTransaction().begin();
-
+		
 		em.merge(t);
 
 		em.getTransaction().commit();

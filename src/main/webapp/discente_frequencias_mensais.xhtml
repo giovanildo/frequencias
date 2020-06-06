@@ -41,8 +41,12 @@
 			<h:outputLabel value="Situação: " for="situacao" />
 			<h:outputText id="situacao"
 				value="#{frequenciaMensalMBean.situacaoAtual}" />
+
 			<h:commandButton value="Salvar"
-				actionListener="#{frequenciaMensalMBean.salvarFrequenciaMensal}" />
+				actionListener="#{frequenciaMensalMBean.salvarFrequenciaMensal}">
+				<f:ajax execute="@form"
+					render="@form frequenciaMensalDT" />
+			</h:commandButton>
 			<h:commandButton value="Enviar Frequencia"
 				actionListener="#{frequenciaMensalMBean.enviarFrequenciaMensal}" />
 		</fieldset>
@@ -100,9 +104,14 @@
 			<h:column>
 				<h:outputText value="#{atividade.descricao}" />
 			</h:column>
+			<h:column>
+				<f:facet name="header">excluir</f:facet>
+				<h:commandLink value="excluir"
+					actionListener="#{frequenciaMensalMBean.excluirAtividade(atividade)}" />
+			</h:column>
 		</h:dataTable>
 		<h2>Frequências mensais salvas</h2>
-		<h:dataTable value="#{frequenciaMensalMBean.frequenciasMensais}"
+		<h:dataTable id = "frequenciaMensalDT" value="#{frequenciaMensalMBean.frequenciasMensais}"
 			var="frequenciaMensal">
 			<h:column>
 				<h:outputText value="#{frequenciaMensal.mesAno}">
@@ -120,7 +129,8 @@
 			</h:column>
 			<h:column>
 				<f:facet name="header">editar</f:facet>
-				<h:commandLink value = "editar" actionListener="#{frequenciaMensalMBean.editarFrequenciaMensal(frequenciaMensal)}"/>
+				<h:commandLink value="editar"
+					actionListener="#{frequenciaMensalMBean.editarFrequenciaMensal(frequenciaMensal)}" />
 			</h:column>
 		</h:dataTable>
 	</h:form>
