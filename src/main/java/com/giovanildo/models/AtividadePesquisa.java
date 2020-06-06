@@ -21,7 +21,7 @@ public class AtividadePesquisa {
 	@Column(name = "id_atividade_pesquisa", unique = true, nullable = false, insertable = true, updatable = true)
 	private int id;
 
-	@ManyToOne(cascade = {}, fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER, targetEntity = FrequenciaMensal.class)
 	@JoinColumn(name = "id_frequencia_mensal", unique = false, nullable = true, insertable = true, updatable = true)
 	private FrequenciaMensal frequenciaMensal;
 	

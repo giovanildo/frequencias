@@ -39,13 +39,12 @@ public class FrequenciaMensal implements Serializable {
 	@Column(name = "mes_ano", columnDefinition = "timestamp with time zone")
 	@Temporal(TemporalType.DATE)
 	private Date mesAno;
-	
+
 	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, mappedBy = "frequenciaMensal")
 	@Fetch(org.hibernate.annotations.FetchMode.SUBSELECT) // https://www.guj.com.br/t/hibernate-cannot-simultaneously-fetch-multiple-bags/290551/17
 	private List<SituacaoFrequenciaMensal> historicoSituacao;
 
-	@OneToMany(cascade = {
-			CascadeType.ALL }, fetch = FetchType.EAGER, mappedBy = "frequenciaMensal", orphanRemoval = true)
+	@OneToMany(cascade = { CascadeType.ALL }, targetEntity = AtividadePesquisa.class, fetch = FetchType.EAGER, mappedBy = "frequenciaMensal", orphanRemoval=true)
 	private List<AtividadePesquisa> atividades = new ArrayList<AtividadePesquisa>();
 
 	public Integer getId() {
@@ -76,7 +75,6 @@ public class FrequenciaMensal implements Serializable {
 	public void setDescricao(String descricao) {
 		this.descricao = descricao;
 	}
-
 
 	public List<SituacaoFrequenciaMensal> getHistoricoSituacao() {
 		return historicoSituacao;

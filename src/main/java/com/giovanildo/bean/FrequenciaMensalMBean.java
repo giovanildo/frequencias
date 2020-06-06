@@ -89,7 +89,6 @@ public class FrequenciaMensalMBean implements Serializable {
 
 	public void excluirAtividade(AtividadePesquisa atividade) {
 		this.frequenciaMensal.removeAtividade(atividade);
-		new DAO<AtividadePesquisa>(AtividadePesquisa.class).remove(atividade);
 	}
 
 	public void enviarFrequenciaMensal() {
