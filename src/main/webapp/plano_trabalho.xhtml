@@ -20,12 +20,14 @@
 			<h:outputLabel value="Data inicio: " for="data_inicio" />
 			<h:inputText id="data_inicio"
 				value="#{planoTrabalhoMBean.planoTrabalho.dataInicio}">
-				<f:convertDateTime pattern="dd/MM/yyyy" />
+				<f:convertDateTime pattern="dd/MM/yyyy"
+					timeZone="#{frequenciaMensalMBean.timeZone}" />
 			</h:inputText>
 			<h:outputLabel value="Data fim: " for="data_fim" />
 			<h:inputText id="data_fim"
 				value="#{planoTrabalhoMBean.planoTrabalho.dataFim}">
-				<f:convertDateTime pattern="dd/MM/yyyy" />
+				<f:convertDateTime pattern="dd/MM/yyyy"
+					timeZone="#{frequenciaMensalMBean.timeZone}" />
 			</h:inputText>
 		</fieldset>
 		<h:commandButton value="Salvar Plano"

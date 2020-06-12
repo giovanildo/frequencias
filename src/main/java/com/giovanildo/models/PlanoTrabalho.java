@@ -10,22 +10,32 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "plano_trabalho", schema = "pesquisa", uniqueConstraints = {})
 public class PlanoTrabalho {
 
-	
-
-	private Integer id;
-	private String descricao;
-	private Collection<FrequenciaMensal> frequenciasMensais;
-	private Date dataInicio;
-	private Date dataFim;
-
 	@Id
 	@GeneratedValue
 	@Column(name = "id_plano_trabalho")
+	private Integer id;
+
+	@Column(name = "descricao")
+	private String descricao;
+
+	@OneToMany(mappedBy = "planoTrabalho") // Configuraï¿½ï¿½o nï¿½o existe no sigaa
+	private Collection<FrequenciaMensal> frequenciasMensais;
+
+	@Column(name = "data_inicio", columnDefinition = "timestamp with time zone")
+	@Temporal(TemporalType.DATE)
+	private Date dataInicio;
+
+	@Column(name = "data_fim", columnDefinition = "timestamp with time zone")
+	@Temporal(TemporalType.DATE)
+	private Date dataFim;
+
 	public Integer getId() {
 		return id;
 	}
@@ -40,8 +50,7 @@ public class PlanoTrabalho {
 	public void setId(Integer id) {
 		this.id = id;
 	}
-	
-	@Column (name = "descricao")
+
 	public String getDescricao() {
 		return descricao;
 	}
@@ -50,7 +59,6 @@ public class PlanoTrabalho {
 		this.descricao = descricao;
 	}
 
-	@OneToMany(mappedBy = "planoTrabalho") // Configuração não existe no sigaa
 	public Collection<FrequenciaMensal> getFrequenciasMensais() {
 		return frequenciasMensais;
 	}
@@ -79,6 +87,7 @@ public class PlanoTrabalho {
 	public void setDataFim(Date dataFim) {
 		this.dataFim = dataFim;
 	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

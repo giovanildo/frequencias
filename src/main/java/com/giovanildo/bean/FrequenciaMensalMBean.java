@@ -25,8 +25,9 @@ import com.giovanildo.models.SituacaoFrequenciaMensal;
 public class FrequenciaMensalMBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+
 	/**
-	 * Frequência Mensal
+	 * Frequencia Mensal
 	 */
 	private FrequenciaMensal frequenciaMensal;
 	private Integer planoTrabalhoId;
@@ -38,30 +39,11 @@ public class FrequenciaMensalMBean implements Serializable {
 	private Date horaFimAtividade;
 	private String descricaoAtividade;
 
+	private Boolean mostrarAtividades;
+
 	public FrequenciaMensalMBean() {
 		super();
 		this.frequenciaMensal = new FrequenciaMensal();
-	}
-
-	public String getSituacaoAtual() {
-
-		return "SEM SITUAÇÃO";
-
-//		if (this.frequenciaMensal.getHistoricoSituacao().isEmpty()) {
-//			return " Não Preenchida ";
-//		}
-//
-//		SituacaoFrequenciaMensal maiorData = null;
-//		for (SituacaoFrequenciaMensal daVez : this.frequenciaMensal.getHistoricoSituacao()) {
-//			if (maiorData == null) {
-//				maiorData = daVez;
-//			}
-//			if (daVez.getData().after(maiorData.getData())) {
-//				maiorData = daVez;
-//			}
-//		}
-//
-//		return maiorData.getSituacao().name();
 	}
 
 	public TimeZone getTimeZone() {
@@ -73,18 +55,79 @@ public class FrequenciaMensalMBean implements Serializable {
 		return frequenciaMensal.getAtividades();
 	}
 
-	public List<FrequenciaMensal> getFrequenciasMensais() {
-		return new DAO<FrequenciaMensal>(FrequenciaMensal.class).listaTodos();
+	public List<FrequenciaMensal> getFrequenciasMensaisPorPlano() {
+		return buscarFrequenciasMensaisPorPlanoDiretoNoBanco();
+	}
+
+	private List<FrequenciaMensal> buscarFrequenciasMensaisPorPlanoDiretoNoBanco() {
+		if(this.planoTrabalhoId == null) {
+			return null;
+		}
+		
+		List<FrequenciaMensal> frequenciasPorPlano = new ArrayList<FrequenciaMensal>();
+		for (FrequenciaMensal daVez : new DAO<FrequenciaMensal>(FrequenciaMensal.class).listaTodos()) {
+			if (this.planoTrabalhoId == daVez.getPlanoTrabalho().getId()) {
+				frequenciasPorPlano.add(daVez);
+			}
+		}
+
+		return frequenciasPorPlano;
+	}
+
+	public List<Date> getFrequenciasAindaNaoCriadas() {
+		return gerarFrequenciasAindaNaoCriadas(buscarFrequenciasMensaisPorPlanoDiretoNoBanco());
+	}
+
+	private List<Date> gerarFrequenciasAindaNaoCriadas(List<FrequenciaMensal> frequenciasJaCriadas) {
+
+		if (planoTrabalhoId == null) {
+			return null;
+		}
+
+		List<Date> datasJaCriadas = new ArrayList<Date>();
+
+		for (FrequenciaMensal jaCriada : frequenciasJaCriadas) {
+			datasJaCriadas.add(jaCriada.getMesAno());
+		}
+
+		PlanoTrabalho planoTrabalho = new DAO<PlanoTrabalho>(PlanoTrabalho.class).buscaPorId(planoTrabalhoId);
+		List<Date> datasPossiveis = geraDatasEmUmPeriodo(planoTrabalho.getDataInicio(), planoTrabalho.getDataFim(),
+				Calendar.MONTH, 1);
+
+		return gerarListaDeDatasQueNaoEstaoNaOutraLista(datasJaCriadas, datasPossiveis);
+	}
+
+	/**
+	 * 
+	 * @param datasJaCriadas
+	 * @param datasPossiveis
+	 * @return uma array de datas que contÃ©m a datas que contÃ©m a intersaÃ§Ã£o das
+	 *         duas listas serve para gerar as frequencias ainda nÃ£o geradas
+	 */
+	public List<Date> gerarListaDeDatasQueNaoEstaoNaOutraLista(List<Date> datasJaCriadas, List<Date> datasPossiveis) {
+		List<Date> naoCriadas = new ArrayList<Date>(datasPossiveis);
+		for (Date possivel : datasPossiveis) {
+			for (Date jaCriada : datasJaCriadas) {
+				if (jaCriada.equals(possivel)) {
+					naoCriadas.remove(jaCriada);
+				}
+			}
+
+		}
+		return naoCriadas;
+	}
+
+	public void adicionarFrequenciaMensal(Date mesAno) {
+		this.frequenciaMensal = new FrequenciaMensal();
+		this.frequenciaMensal.setPlanoTrabalho(new DAO<PlanoTrabalho>(PlanoTrabalho.class).buscaPorId(planoTrabalhoId));
+		this.frequenciaMensal.adicionaSituacao(Situacao.PREENCHENDO);
+		this.frequenciaMensal.setMesAno(mesAno);
+		new DAO<FrequenciaMensal>(FrequenciaMensal.class).adiciona(this.frequenciaMensal);
 	}
 
 	public void editarFrequenciaMensal(FrequenciaMensal frequencia) {
+		this.mostrarAtividades = true;
 		this.frequenciaMensal = frequencia;
-		this.planoTrabalhoId = frequencia.getPlanoTrabalho().getId();
-		this.mesAnoFrequencia = frequencia.getMesAno();
-	}
-
-	public void excluirFrequenciaMensal(FrequenciaMensal frequencia) {
-		new DAO<FrequenciaMensal>(FrequenciaMensal.class).remove(frequencia);
 	}
 
 	public void excluirAtividade(AtividadePesquisa atividade) {
@@ -97,16 +140,12 @@ public class FrequenciaMensalMBean implements Serializable {
 	}
 
 	public void salvarFrequenciaMensal() {
-		frequenciaMensal.setPlanoTrabalho(new DAO<PlanoTrabalho>(PlanoTrabalho.class).buscaPorId(planoTrabalhoId));
-		frequenciaMensal.setMesAno(this.mesAnoFrequencia);
 		if (frequenciaMensal.getId() == null) {
-//			frequenciaMensal.getHistoricoSituacao().add(new SituacaoFrequenciaMensal(frequenciaMensal));
 			new DAO<FrequenciaMensal>(FrequenciaMensal.class).adiciona(this.frequenciaMensal);
 		} else {
 			new DAO<FrequenciaMensal>(FrequenciaMensal.class).atualiza(this.frequenciaMensal);
 		}
-
-		this.frequenciaMensal = new FrequenciaMensal();
+		this.setMostrarAtividades(false);
 	}
 
 	private Date combinaDataEhora(Date data, Date hora) {
@@ -150,7 +189,7 @@ public class FrequenciaMensalMBean implements Serializable {
 	 */
 	public List<SelectItem> getMesAnoPossiveis() {
 
-		List<SelectItem> itens = new ArrayList<>();
+		List<SelectItem> itens = new ArrayList<SelectItem>();
 
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/yyyy");
 
@@ -171,16 +210,16 @@ public class FrequenciaMensalMBean implements Serializable {
 
 	/**
 	 * 
-	 * @return lista de dias de um mês baseado no mes e ano da frequencia mensal
+	 * @return lista de dias de um mï¿½s baseado no mes e ano da frequencia mensal
 	 *         serve pra preencher o combo box data da atividade de pesquisa
 	 * 
 	 */
 	public List<SelectItem> getDiasDoMes() {
 
-		List<SelectItem> itens = new ArrayList<>();
+		List<SelectItem> itens = new ArrayList<SelectItem>();
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-		if (this.mesAnoFrequencia == null) {
+		if (this.frequenciaMensal.getMesAno() == null) {
 			return null;
 		}
 
@@ -188,12 +227,13 @@ public class FrequenciaMensalMBean implements Serializable {
 		Calendar calendarioInicio = new GregorianCalendar();
 		Calendar calendarioFim = new GregorianCalendar();
 
-		calendario.setTime(this.mesAnoFrequencia);
-		calendarioInicio.setTime(this.mesAnoFrequencia);
-		calendarioFim.setTime(this.mesAnoFrequencia);
+		calendario.setTime(this.frequenciaMensal.getMesAno());
 
 		int inicio = calendario.getActualMinimum(Calendar.DATE);
 		int fim = calendario.getActualMaximum(Calendar.DATE);
+
+		calendarioInicio.setTime(this.frequenciaMensal.getMesAno());
+		calendarioFim.setTime(this.frequenciaMensal.getMesAno());
 
 		calendarioInicio.set(Calendar.DATE, inicio);
 		calendarioFim.set(Calendar.DATE, fim);
@@ -280,13 +320,17 @@ public class FrequenciaMensalMBean implements Serializable {
 		return mesAnoFrequencia;
 	}
 
-	public void setMesAnoFrequencia(Date mesAnoFrequencia) {
-		this.mesAnoFrequencia = mesAnoFrequencia;
+	public Boolean getMostrarAtividades() {
+		return mostrarAtividades;
+	}
+
+	public void setMostrarAtividades(Boolean mostrarAtividades) {
+		this.mostrarAtividades = mostrarAtividades;
 	}
 
 	/**
 	 * 
-	 * @return habilitar botão de envio de frequencia
+	 * @return habilitar botï¿½o de envio de frequencia
 	 */
 //	public boolean cargaHorariaEhValida() {
 //
@@ -294,13 +338,13 @@ public class FrequenciaMensalMBean implements Serializable {
 //
 //		if (horasFaltando < 0) {
 //			addMensagem(MensagensArquitetura.CONTEUDO_INVALIDO,
-//					"A carga horária realizada não pode ser maior do que a carga horária exigida");
+//					"A carga horï¿½ria realizada nï¿½o pode ser maior do que a carga horï¿½ria exigida");
 //			return false;
 //		}
 //
 //		if (horasFaltando == 0) {
 //			addMensagem(MensagensArquitetura.CADASTRADO_COM_SUCESSO,
-//					"Parabéns!! Você já pode enviar sua frequência ");
+//					"Parabï¿½ns!! Vocï¿½ jï¿½ pode enviar sua frequï¿½ncia ");
 //			this.setEnvioFrequencia(false);
 //		}
 //
@@ -322,7 +366,7 @@ public class FrequenciaMensalMBean implements Serializable {
 //			Calendar calendarioFim) {
 //		if (obj.getDescricao().isEmpty()) {
 //			addMensagem(MensagensArquitetura.CONTEUDO_INVALIDO,
-//					"Descrição não pode ser vazia");
+//					"Descriï¿½ï¿½o nï¿½o pode ser vazia");
 //			return false;
 //		}
 //		boolean mesAnoEhValido = ((calendarioInicio.get(Calendar.MONTH) == this.mes - 1 && calendarioFim
@@ -331,7 +375,7 @@ public class FrequenciaMensalMBean implements Serializable {
 //				.get(Calendar.YEAR) == this.ano));
 //		if (!mesAnoEhValido) {
 //			addMensagem(MensagensArquitetura.CONTEUDO_INVALIDO,
-//					"O mês deve ser: " + this.mes + " e o ano " + this.ano);
+//					"O mï¿½s deve ser: " + this.mes + " e o ano " + this.ano);
 //			return false;
 //		}
 //
@@ -352,13 +396,13 @@ public class FrequenciaMensalMBean implements Serializable {
 //
 //		if (horasFaltandoIncluidoAdigitadaAgora < 0) {
 //			addMensagem(MensagensArquitetura.CONTEUDO_INVALIDO,
-//					"A carga horária realizada não pode ser maior do que a carga horária exigida");
+//					"A carga horï¿½ria realizada nï¿½o pode ser maior do que a carga horï¿½ria exigida");
 //			return false;
 //		}
 //
 //		if (horasFaltandoIncluidoAdigitadaAgora == 0) {
 //			addMensagem(MensagensArquitetura.CADASTRADO_COM_SUCESSO,
-//					"Parabéns!! Você já pode enviar sua frequência ");
+//					"Parabï¿½ns!! Vocï¿½ jï¿½ pode enviar sua frequï¿½ncia ");
 //			this.setEnvioFrequencia(false);
 //		}
 //
@@ -378,7 +422,7 @@ public class FrequenciaMensalMBean implements Serializable {
 	 * @param dataInicialDigitada
 	 * @param dataFinalDigitada
 	 * @param lista
-	 * @return verifica se a data hora inicial ou hora final já foram digitados
+	 * @return verifica se a data hora inicial ou hora final jï¿½ foram digitados
 	 *         antes
 	 */
 //	private boolean dataHoraJaCadastrada(Date dataInicialDigitada,

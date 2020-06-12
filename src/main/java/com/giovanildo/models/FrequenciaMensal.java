@@ -44,7 +44,8 @@ public class FrequenciaMensal implements Serializable {
 	@Fetch(org.hibernate.annotations.FetchMode.SUBSELECT) // https://www.guj.com.br/t/hibernate-cannot-simultaneously-fetch-multiple-bags/290551/17
 	private List<SituacaoFrequenciaMensal> historicoSituacao;
 
-	@OneToMany(cascade = { CascadeType.ALL }, targetEntity = AtividadePesquisa.class, fetch = FetchType.EAGER, mappedBy = "frequenciaMensal", orphanRemoval=true)
+	@OneToMany(cascade = {
+			CascadeType.ALL }, targetEntity = AtividadePesquisa.class, fetch = FetchType.EAGER, mappedBy = "frequenciaMensal", orphanRemoval = true) // https://www.guj.com.br/t/resolvido-remocao-dos-objetos-no-merge-jpa/78937/6
 	private List<AtividadePesquisa> atividades = new ArrayList<AtividadePesquisa>();
 
 	public Integer getId() {
@@ -99,13 +100,41 @@ public class FrequenciaMensal implements Serializable {
 	public void setAtividades(List<AtividadePesquisa> atividades) {
 		this.atividades = atividades;
 	}
-
+	
 	public void removeAtividade(AtividadePesquisa atividade) {
 		this.atividades.remove(atividade);
 	}
 
 	public void adicionaAtividade(AtividadePesquisa atividade) {
 		this.atividades.add(atividade);
+	}
+
+	
+	public void adicionaSituacao(Situacao situacao) {
+		this.getHistoricoSituacao().add(new SituacaoFrequenciaMensal(this, situacao));
+	}
+	
+	public String getSituacaoAtual() {
+		
+		if (this.getHistoricoSituacao() == null) {
+			return " Histórico da Situação está nulo ";
+		}
+
+		if (this.getHistoricoSituacao().isEmpty()) {
+			return " Situação Não Preenchida ";
+		}
+		
+		SituacaoFrequenciaMensal maiorData = null;
+		for (SituacaoFrequenciaMensal daVez : this.getHistoricoSituacao()) {
+			if (maiorData == null) {
+				maiorData = daVez;
+			}
+			if (daVez.getData().after(maiorData.getData())) {
+				maiorData = daVez;
+			}
+		}
+
+		return maiorData.getSituacao().name();
 	}
 
 	@Override
