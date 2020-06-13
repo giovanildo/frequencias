@@ -25,6 +25,7 @@
 				<h:dataTable id="tabela_frequencias"
 					value="#{frequenciaMensalMBean.frequenciasMensaisPorPlano}"
 					var="frequencia">
+					<f:facet name="header">Frequências adicionadas</f:facet>
 					<h:column>
 						<f:facet name="header">Mês/Ano</f:facet>
 						<h:outputText value="#{frequencia.mesAno}">
@@ -36,6 +37,10 @@
 						<h:outputText value="#{frequencia.situacaoAtual}" />
 					</h:column>
 					<h:column>
+						<f:facet name="header"> Falta </f:facet>
+						<h:outputText value="#{frequencia.cargaHorariaRestanteFormatada}" />
+					</h:column>
+					<h:column>
 						<f:facet name="header">Editar</f:facet>
 						<h:commandLink value="editar"
 							action="#{frequenciaMensalMBean.editarFrequenciaMensal(frequencia)}" />
@@ -45,6 +50,7 @@
 				<h:dataTable id="frequencias_nao_criadas"
 					value="#{frequenciaMensalMBean.frequenciasAindaNaoCriadas}"
 					var="frequenciaNaoCriada">
+					<f:facet name="header">Frequências ainda não criadas</f:facet>
 					<h:column>
 						<f:facet name="header">Mês/Ano</f:facet>
 						<h:outputText value="#{frequenciaNaoCriada}">
@@ -52,10 +58,11 @@
 						</h:outputText>
 					</h:column>
 					<h:column>
-						<f:facet name="header">Editar</f:facet>
-						<h:commandLink value="adicionar"
+						<f:facet name="header">adicionar</f:facet>
+						<h:commandLink value=" adicionar "
 							action="#{frequenciaMensalMBean.adicionarFrequenciaMensal(frequenciaNaoCriada)}" />
 					</h:column>
+
 				</h:dataTable>
 			</h:panelGrid>
 		</fieldset>
@@ -89,10 +96,10 @@
 				actionListener="#{frequenciaMensalMBean.incluirAtividadeFrequencia}" />
 		</h:panelGrid>
 
-		<legend>Atividades Incluídas</legend>
 		<h:dataTable id="tabela_atividades"
 			value="#{frequenciaMensalMBean.atividadesPesquisa}" var="atividade"
 			rendered="#{frequenciaMensalMBean.mostrarAtividades}">
+			<f:facet name="header">Atividades</f:facet>
 			<h:column>
 				<f:facet name="header">Data</f:facet>
 				<h:outputText value="#{atividade.dataInicio}">
@@ -121,15 +128,22 @@
 			<h:column>
 				<f:facet name="header">excluir</f:facet>
 				<h:commandLink value="excluir"
-					actionListener="#{frequenciaMensalMBean.excluirAtividade(atividade)}" />
+					actionListener="#{frequenciaMensalMBean.excluirAtividade(atividade)}" rendered="#{frequenciaMensalMBean.permitirExcluir}"/>
 			</h:column>
+			<h:column>
+				<f:facet name="header">Carga Horária</f:facet>
+				<h:outputText value="#{atividade.cargaHorariaFormatada}" />
+			</h:column>
+			<f:facet name="footer"> Carga Horária Realizada : #{frequenciaMensalMBean.frequenciaMensal.cargaHorariaFormatada} </f:facet>
 		</h:dataTable>
 		<h:commandButton value="Salvar"
-			actionListener="#{frequenciaMensalMBean.salvarFrequenciaMensal}">
+			actionListener="#{frequenciaMensalMBean.salvarFrequenciaMensal}"
+			rendered="#{frequenciaMensalMBean.mostrarAtividades}">
 			<f:ajax execute="@form" render="@form" />
 		</h:commandButton>
 		<h:commandButton value="Enviar Frequencia"
-			actionListener="#{frequenciaMensalMBean.enviarFrequenciaMensal}" />
+			actionListener="#{frequenciaMensalMBean.enviarFrequenciaMensal}"
+			rendered="#{frequenciaMensalMBean.envioFrequencia}" />
 	</h:form>
 </h:body>
 </html>

@@ -9,9 +9,15 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.faces.view.ViewScoped;
 import javax.inject.Named;
+
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
+import org.joda.time.ReadableInterval;
 
 import com.giovanildo.dao.DAO;
 import com.giovanildo.models.AtividadePesquisa;
@@ -44,6 +50,7 @@ public class FrequenciaMensalMBean implements Serializable {
 	public FrequenciaMensalMBean() {
 		super();
 		this.frequenciaMensal = new FrequenciaMensal();
+		this.mostrarAtividades = false;
 	}
 
 	public TimeZone getTimeZone() {
@@ -60,10 +67,10 @@ public class FrequenciaMensalMBean implements Serializable {
 	}
 
 	private List<FrequenciaMensal> buscarFrequenciasMensaisPorPlanoDiretoNoBanco() {
-		if(this.planoTrabalhoId == null) {
+		if (this.planoTrabalhoId == null) {
 			return null;
 		}
-		
+
 		List<FrequenciaMensal> frequenciasPorPlano = new ArrayList<FrequenciaMensal>();
 		for (FrequenciaMensal daVez : new DAO<FrequenciaMensal>(FrequenciaMensal.class).listaTodos()) {
 			if (this.planoTrabalhoId == daVez.getPlanoTrabalho().getId()) {
@@ -137,9 +144,11 @@ public class FrequenciaMensalMBean implements Serializable {
 	public void enviarFrequenciaMensal() {
 		SituacaoFrequenciaMensal situacao = new SituacaoFrequenciaMensal(frequenciaMensal, Situacao.ENVIADA);
 		new DAO<SituacaoFrequenciaMensal>(SituacaoFrequenciaMensal.class).adiciona(situacao);
+		this.setMostrarAtividades(false);
 	}
 
 	public void salvarFrequenciaMensal() {
+
 		if (frequenciaMensal.getId() == null) {
 			new DAO<FrequenciaMensal>(FrequenciaMensal.class).adiciona(this.frequenciaMensal);
 		} else {
@@ -174,12 +183,61 @@ public class FrequenciaMensalMBean implements Serializable {
 
 		AtividadePesquisa atividade;
 		atividade = new AtividadePesquisa(this.frequenciaMensal, dataInicio, dataFinal, this.descricaoAtividade);
+
+		if (!atividadeEhValida(atividade)) {
+			return;
+		}
+
 		this.frequenciaMensal.adicionaAtividade(atividade);
 
 		this.descricaoAtividade = null;
 		this.diaAtividade = null;
 		this.horaFimAtividade = null;
 		this.horaInicioAtividade = null;
+
+	}
+
+	private boolean atividadeEhValida(AtividadePesquisa atividade) {
+		if (this.descricaoAtividade.isEmpty()) {
+			FacesContext.getCurrentInstance().addMessage("atividade", new FacesMessage("descrição não pode ser vazia"));
+			return false;
+		}
+
+		if (dataHoraJaCadastrada(atividade.getDataInicio(), atividade.getDataTermino(),
+				this.frequenciaMensal.getAtividades())) {
+			FacesContext.getCurrentInstance().addMessage("atividade", new FacesMessage("hora já cadastrada"));
+			return false;
+		}
+
+		if (atividade.getDataTermino().before(atividade.getDataInicio())) {
+			FacesContext.getCurrentInstance().addMessage("atividade",
+					new FacesMessage("Hora Final deve ser maior que a hora inicial"));
+			return false;
+		}
+
+		long horasFaltandoMaisAdigitadaAgora = this.frequenciaMensal.chExigidaEmMs()
+				- (this.frequenciaMensal.cargaHorariaTotal() + atividade.cargaHoraria());
+
+		if (horasFaltandoMaisAdigitadaAgora < 0) {
+			FacesContext.getCurrentInstance().addMessage("atividade",
+					new FacesMessage("A carga horária realizada não pode ser maior do que a carga horária exigida"));
+			return false;
+		}
+
+		if (horasFaltandoMaisAdigitadaAgora == 0) {
+			FacesContext.getCurrentInstance().addMessage("atividade",
+					new FacesMessage("Parabéns! Você já pode enviar sua frequência!"));
+			return true;
+		}
+		if (horasFaltandoMaisAdigitadaAgora > 0) {
+			FacesContext.getCurrentInstance().addMessage("atividade",
+					new FacesMessage("Falta " + FrequenciaMensal.cargaHorariaFormatada(horasFaltandoMaisAdigitadaAgora)
+							+ " trabalhadas para poder enviar a frequencia"));
+			return true;
+		}
+
+		return true;
+
 	}
 
 	/**
@@ -264,10 +322,57 @@ public class FrequenciaMensalMBean implements Serializable {
 		return datasEmUmPeriodo;
 	}
 
+	/**
+	 * @author giovanildo
+	 * @param dataInicialDigitada
+	 * @param dataFinalDigitada
+	 * @param lista
+	 * @return verifica se a data hora inicial ou hora final j� foram digitados
+	 *         antes
+	 */
+	private boolean dataHoraJaCadastrada(Date dataInicialDigitada, Date dataFinalDigitada,
+			List<AtividadePesquisa> lista) {
+		for (AtividadePesquisa daVez : lista) {
+			if (comparaIntervalosDeDataHora(dataInicialDigitada, dataFinalDigitada, daVez.getDataInicio(),
+					daVez.getDataTermino())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @author giovanildo
+	 * @param dataHoraDigitadaInicial
+	 * @param dataFinalDigitada
+	 * @param dataIniciaJaExistente
+	 * @param dataFinalJaExistente
+	 * @return se as datas horas estas repetidas
+	 */
+	private boolean comparaIntervalosDeDataHora(Date dataHoraDigitadaInicial, Date dataDigitadaFinal,
+			Date dataInicialJaExistente, Date dataFinalJaExistente) {
+		try {
+			Interval intervalDigitado = new Interval(new DateTime(dataHoraDigitadaInicial),
+					new DateTime(dataDigitadaFinal));
+			Interval intervaloNoBancoDeDados = new Interval(new DateTime(dataInicialJaExistente),
+					new DateTime(dataFinalJaExistente));
+
+			ReadableInterval readableInterval = intervaloNoBancoDeDados;
+
+			if (intervalDigitado.overlaps(readableInterval)) {
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
 	public List<PlanoTrabalho> getPlanosTrabalho() {
 		return new DAO<PlanoTrabalho>(PlanoTrabalho.class).listaTodos();
 	}
 
+	// getters setters
 	public FrequenciaMensal getFrequenciaMensal() {
 		return frequenciaMensal;
 	}
@@ -328,142 +433,22 @@ public class FrequenciaMensalMBean implements Serializable {
 		this.mostrarAtividades = mostrarAtividades;
 	}
 
-	/**
-	 * 
-	 * @return habilitar bot�o de envio de frequencia
-	 */
-//	public boolean cargaHorariaEhValida() {
-//
-//		long horasFaltando = horasFaltando();
-//
-//		if (horasFaltando < 0) {
-//			addMensagem(MensagensArquitetura.CONTEUDO_INVALIDO,
-//					"A carga hor�ria realizada n�o pode ser maior do que a carga hor�ria exigida");
-//			return false;
-//		}
-//
-//		if (horasFaltando == 0) {
-//			addMensagem(MensagensArquitetura.CADASTRADO_COM_SUCESSO,
-//					"Parab�ns!! Voc� j� pode enviar sua frequ�ncia ");
-//			this.setEnvioFrequencia(false);
-//		}
-//
-//		if (horasFaltando > 0) {
-//			addMensagem(MensagensArquitetura.CAMPO_OBRIGATORIO_NAO_INFORMADO,
-//					"Falta " + conversorMsHoraPorExtenso(horasFaltando)
-//							+ " trabalhadas para poder enviar a frequencia");
-//			this.setEnvioFrequencia(true);
-//		}
-//		return true;
-//
-//	}
+	public Situacao situacao() {
+		return this.frequenciaMensal.situacao();
+	}
 
-	/**
-	 * @param calendarioInicio
-	 * @param calendarioFim
-	 */
-//	private boolean atividadeFrequenciaEhValida(Calendar calendarioInicio,
-//			Calendar calendarioFim) {
-//		if (obj.getDescricao().isEmpty()) {
-//			addMensagem(MensagensArquitetura.CONTEUDO_INVALIDO,
-//					"Descri��o n�o pode ser vazia");
-//			return false;
-//		}
-//		boolean mesAnoEhValido = ((calendarioInicio.get(Calendar.MONTH) == this.mes - 1 && calendarioFim
-//				.get(Calendar.MONTH) == this.mes - 1) && (calendarioInicio
-//				.get(Calendar.YEAR) == this.ano && calendarioFim
-//				.get(Calendar.YEAR) == this.ano));
-//		if (!mesAnoEhValido) {
-//			addMensagem(MensagensArquitetura.CONTEUDO_INVALIDO,
-//					"O m�s deve ser: " + this.mes + " e o ano " + this.ano);
-//			return false;
-//		}
-//
-//		if (calendarioFim.before(calendarioInicio)) {
-//			addMensagem(MensagensArquitetura.CONTEUDO_INVALIDO,
-//					"Hora Final deve ser maior que a hora inicial");
-//			return false;
-//		}
-//
-//		if (dataHoraJaCadastrada(calendarioInicio.getTime(),
-//				calendarioFim.getTime(), pegarFrequenciasNoBanco())) {
-//			addMensagem(MensagensArquitetura.OBJETO_JA_CADASTRADO,
-//					"Data e Hora");
-//			return false;
-//		}
-//
-//		long horasFaltandoIncluidoAdigitadaAgora = horasFaltandoIncluidoAdigitadaAgora();
-//
-//		if (horasFaltandoIncluidoAdigitadaAgora < 0) {
-//			addMensagem(MensagensArquitetura.CONTEUDO_INVALIDO,
-//					"A carga hor�ria realizada n�o pode ser maior do que a carga hor�ria exigida");
-//			return false;
-//		}
-//
-//		if (horasFaltandoIncluidoAdigitadaAgora == 0) {
-//			addMensagem(MensagensArquitetura.CADASTRADO_COM_SUCESSO,
-//					"Parab�ns!! Voc� j� pode enviar sua frequ�ncia ");
-//			this.setEnvioFrequencia(false);
-//		}
-//
-//		if (horasFaltandoIncluidoAdigitadaAgora > 0) {
-//			addMensagem(
-//					MensagensArquitetura.CAMPO_OBRIGATORIO_NAO_INFORMADO,
-//					"Falta "
-//							+ conversorMsHoraPorExtenso(horasFaltandoIncluidoAdigitadaAgora)
-//							+ " trabalhadas para poder enviar a frequencia");
-//			this.setEnvioFrequencia(true);
-//		}
-//		return true;
-//	}
+	public Boolean getPermitirExcluir() {
+		return !(situacao() == Situacao.ENVIADA || situacao() == Situacao.HOMOLOGADA || situacao() == null);
+	}
 
-	/**
-	 * @author giovanildo
-	 * @param dataInicialDigitada
-	 * @param dataFinalDigitada
-	 * @param lista
-	 * @return verifica se a data hora inicial ou hora final j� foram digitados
-	 *         antes
-	 */
-//	private boolean dataHoraJaCadastrada(Date dataInicialDigitada,
-//			Date dataFinalDigitada,
-//			Collection<AtividadeFrequenciaPesquisa> lista) {
-//		for (AtividadeFrequenciaPesquisa daVez : lista) {
-//			if (comparaIntervalosDeDataHora(dataInicialDigitada,
-//					dataFinalDigitada, daVez.getDataInicio(),
-//					daVez.getDataTerminio())) {
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
+	public Boolean getEnvioFrequencia() {
+		if (!this.mostrarAtividades) {
+			return false;
+		}
 
-	/**
-	 * @author giovanildo
-	 * @param dataHoraDigitadaInicial
-	 * @param dataFinalDigitada
-	 * @param dataIniciaJaExistente
-	 * @param dataFinalJaExistente
-	 * @return se as datas horas estas repetidas
-	 */
-//	private boolean comparaIntervalosDeDataHora(Date dataHoraDigitadaInicial,
-//			Date dataDigitadaFinal, Date dataInicialJaExistente,
-//			Date dataFinalJaExistente) {
-//		try {
-//			Interval intervalDigitado = new Interval(new DateTime(
-//					dataHoraDigitadaInicial), new DateTime(dataDigitadaFinal));
-//			Interval intervaloNoBancoDeDados = new Interval(new DateTime(
-//					dataInicialJaExistente), new DateTime(dataFinalJaExistente));
-//
-//			ReadableInterval readableInterval = intervaloNoBancoDeDados;
-//
-//			if (intervalDigitado.overlaps(readableInterval)) {
-//				return true;
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return false;
-//	}
-
+		if (situacao() == Situacao.ENVIADA || situacao() == Situacao.HOMOLOGADA || situacao() == null) {
+			return false;
+		}
+		return this.frequenciaMensal.chExigidaEmMs() - this.frequenciaMensal.cargaHorariaTotal() == 0;
+	}
 }

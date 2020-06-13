@@ -24,17 +24,25 @@ public class AtividadePesquisa {
 	@ManyToOne(fetch = FetchType.EAGER, targetEntity = FrequenciaMensal.class)
 	@JoinColumn(name = "id_frequencia_mensal", unique = false, nullable = true, insertable = true, updatable = true)
 	private FrequenciaMensal frequenciaMensal;
-	
+
 	@Column(name = "data_inicio", columnDefinition = "timestamp with time zone")
-	@Temporal(TemporalType.TIMESTAMP)	
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date dataInicio;
 
 	@Column(name = "data_termino", columnDefinition = "timestamp with time zone")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dataTermino;
-	
+
 	@Column(name = "descricao")
 	private String descricao;
+
+	public Long cargaHoraria() {
+		return dataTermino.getTime() - dataInicio.getTime();
+	}
+	
+	public String getCargaHorariaFormatada() {
+		return FrequenciaMensal.cargaHorariaFormatada(cargaHoraria());
+	}
 
 	public int getId() {
 		return id;
@@ -56,7 +64,6 @@ public class AtividadePesquisa {
 		this.id = id;
 	}
 
-
 	public Date getDataInicio() {
 		return dataInicio;
 	}
@@ -73,7 +80,6 @@ public class AtividadePesquisa {
 		this.dataTermino = dataTermino;
 	}
 
-	
 	public String getDescricao() {
 		return descricao;
 	}
@@ -81,7 +87,6 @@ public class AtividadePesquisa {
 	public void setDescricao(String descricao) {
 		this.descricao = descricao;
 	}
-
 
 	public FrequenciaMensal getFrequenciaMensal() {
 		return frequenciaMensal;
@@ -113,7 +118,4 @@ public class AtividadePesquisa {
 		return true;
 	}
 
-	
-
-	
 }

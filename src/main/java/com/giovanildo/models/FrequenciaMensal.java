@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -100,7 +101,7 @@ public class FrequenciaMensal implements Serializable {
 	public void setAtividades(List<AtividadePesquisa> atividades) {
 		this.atividades = atividades;
 	}
-	
+
 	public void removeAtividade(AtividadePesquisa atividade) {
 		this.atividades.remove(atividade);
 	}
@@ -109,13 +110,52 @@ public class FrequenciaMensal implements Serializable {
 		this.atividades.add(atividade);
 	}
 
+	public String getCargaHorariaFormatada() {
+		return cargaHorariaFormatada(cargaHorariaTotal());
+	}
+
+	public Long cargaHorariaTotal() {
+		Long total = 0L;
+		for (AtividadePesquisa daVez : atividades) {
+			total += daVez.cargaHoraria();
+		}
+		return total;
+	}
 	
+	
+	public Long cargaHorariaRestante() {
+		return chExigidaEmMs() - cargaHorariaTotal();
+	}
+
+	public Long chExigidaEmMs() {
+		int chExigida = 10;
+		Long chExigidaEmMs = TimeUnit.HOURS.toMillis(chExigida);
+		return chExigidaEmMs;
+	}
+	
+	public String getCargaHorariaRestanteFormatada() {
+		return cargaHorariaFormatada(cargaHorariaRestante());
+	}
+
+	public static String cargaHorariaFormatada(Long cargaHoraria) {
+		long hora = TimeUnit.MILLISECONDS.toHours(cargaHoraria);
+		long minutos = TimeUnit.MILLISECONDS.toMinutes(cargaHoraria) - TimeUnit.HOURS.toMinutes(hora);
+
+		if (hora == 0)
+			return String.format("%02d min", minutos);
+
+		if (minutos == 0)
+			return String.format("%02d Hs", hora);
+
+		return String.format("%02d hs, %02d min", hora, minutos);
+	}
+
 	public void adicionaSituacao(Situacao situacao) {
 		this.getHistoricoSituacao().add(new SituacaoFrequenciaMensal(this, situacao));
 	}
-	
+
 	public String getSituacaoAtual() {
-		
+
 		if (this.getHistoricoSituacao() == null) {
 			return " Histórico da Situação está nulo ";
 		}
@@ -123,7 +163,11 @@ public class FrequenciaMensal implements Serializable {
 		if (this.getHistoricoSituacao().isEmpty()) {
 			return " Situação Não Preenchida ";
 		}
-		
+
+		return situacao().name();
+	}
+	
+	public Situacao situacao() {
 		SituacaoFrequenciaMensal maiorData = null;
 		for (SituacaoFrequenciaMensal daVez : this.getHistoricoSituacao()) {
 			if (maiorData == null) {
@@ -134,9 +178,10 @@ public class FrequenciaMensal implements Serializable {
 			}
 		}
 
-		return maiorData.getSituacao().name();
+		return maiorData.getSituacao();
 	}
-
+	
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
