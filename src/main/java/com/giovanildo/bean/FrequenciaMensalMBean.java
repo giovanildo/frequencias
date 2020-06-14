@@ -52,6 +52,38 @@ public class FrequenciaMensalMBean implements Serializable {
 		this.frequenciaMensal = new FrequenciaMensal();
 	}
 
+	public void homologarFrequenciaMensal() {
+//		SituacaoFrequenciaMensal situacao = new SituacaoFrequenciaMensal(frequenciaMensal, Situacao.ENVIADA);
+//		new DAO<SituacaoFrequenciaMensal>(SituacaoFrequenciaMensal.class).adiciona(situacao);
+
+		frequenciaMensal.adicionaSituacao(Situacao.HOMOLOGADA);
+		new DAO<FrequenciaMensal>(FrequenciaMensal.class).atualiza(frequenciaMensal);
+		FacesContext.getCurrentInstance().addMessage("atividade", new FacesMessage("Frequência "
+				+ new SimpleDateFormat("MM/yyyy").format(frequenciaMensal.getMesAno()) + " homologada com sucesso!"));
+		mostrarAtividades = false;
+		
+	}
+
+	public void recusarFrequenciaMensal() {
+		frequenciaMensal.adicionaSituacao(Situacao.RECUSADA);
+		new DAO<FrequenciaMensal>(FrequenciaMensal.class).atualiza(frequenciaMensal);
+		FacesContext.getCurrentInstance().addMessage("atividade", new FacesMessage(
+				"Frequência " + new SimpleDateFormat("MM/yyyy").format(frequenciaMensal.getMesAno()) + " recusada!"));
+		mostrarAtividades = false;
+	}
+
+	public List<FrequenciaMensal> getFrequenciasMensaisPorPlanoParaHomologar() {
+		List<FrequenciaMensal> frequencias = new DAO<FrequenciaMensal>(FrequenciaMensal.class).listaTodos();
+		List<FrequenciaMensal> frequenciasParaHomologar = new ArrayList<FrequenciaMensal>();
+		for (FrequenciaMensal frequencia : frequencias) {
+			if (frequencia.situacao().equals(Situacao.ENVIADA)) {
+				frequenciasParaHomologar.add(frequencia);
+			}
+
+		}
+		return frequenciasParaHomologar;
+	}
+
 	public TimeZone getTimeZone() {
 		TimeZone timeZone = TimeZone.getDefault();
 		return timeZone;
@@ -385,12 +417,12 @@ public class FrequenciaMensalMBean implements Serializable {
 	}
 
 	public Boolean envioFrequencia(FrequenciaMensal frequencia) {
-		
+
 		Situacao situacao = frequencia.situacao();
 		Boolean editavel = situacao.equals(Situacao.PREENCHENDO) || situacao.equals(Situacao.RECUSADA);
 		Boolean cargaHorariaOK = frequencia.chExigidaEmMs() - frequencia.cargaHorariaTotal() == 0;
-		
-		if(editavel && cargaHorariaOK) {
+
+		if (editavel && cargaHorariaOK) {
 			return true;
 		}
 		return false;
@@ -476,6 +508,10 @@ public class FrequenciaMensalMBean implements Serializable {
 
 	public void setMostrarAtividades(Boolean mostrarAtividades) {
 		this.mostrarAtividades = mostrarAtividades;
+	}
+
+	public void setMesAnoFrequencia(Date mesAnoFrequencia) {
+		this.mesAnoFrequencia = mesAnoFrequencia;
 	}
 
 }

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+<h:head />
+<h:body>
+	<h:form id="form">
+		<h:dataTable id="tabela_frequencias"
+			value="#{frequenciaMensalMBean.frequenciasMensaisPorPlanoParaHomologar}"
+			var="frequencia">
+			<f:facet name="header">Frequências Para Homologação </f:facet>
+			<h:column>
+				<f:facet name="header"> Plano de Trabalho </f:facet>
+			</h:column>
+			<h:column>
+				<f:facet name="header"> Discente </f:facet>
+			</h:column>
+			<h:column>
+				<f:facet name="header">Mês/Ano</f:facet>
+				<h:outputText value="#{frequencia.mesAno}">
+					<f:convertDateTime pattern="MM/yyyy" />
+				</h:outputText>
+			</h:column>
+			<h:column>
+				<f:facet name="header"> Detalhes </f:facet>
+				<h:commandLink value="Analisar"
+					action="#{frequenciaMensalMBean.editarFrequenciaMensal(frequencia)}" />
+			</h:column>
+
+
+		</h:dataTable>
+		<h:dataTable id="tabela_atividades"
+			value="#{frequenciaMensalMBean.atividadesPesquisa}" var="atividade"
+			rendered="#{frequenciaMensalMBean.mostrarAtividades}">
+			<f:facet name="header">Atividades</f:facet>
+			<h:column>
+				<f:facet name="header">Data</f:facet>
+				<h:outputText value="#{atividade.dataInicio}">
+					<f:convertDateTime pattern="dd/MM/yyyy"
+						timeZone="#{frequenciaMensalMBean.timeZone}" />
+				</h:outputText>
+			</h:column>
+			<h:column>
+				<f:facet name="header">Inicio</f:facet>
+				<h:outputText value="#{atividade.dataInicio}">
+					<f:convertDateTime type="time" pattern="HH:mm"
+						timeZone="#{frequenciaMensalMBean.timeZone}" />
+				</h:outputText>
+			</h:column>
+			<h:column>
+				<f:facet name="header">Fim</f:facet>
+				<h:outputText value="#{atividade.dataTermino}">
+					<f:convertDateTime type="time" pattern="HH:mm"
+						timeZone="#{frequenciaMensalMBean.timeZone}" />
+				</h:outputText>
+			</h:column>
+			<h:column>
+				<f:facet name="header">Descrição</f:facet>
+				<h:outputText value="#{atividade.descricao}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">Carga Horária</f:facet>
+				<h:outputText value="#{atividade.cargaHorariaFormatada}" />
+			</h:column>
+			<f:facet name="footer"> Carga Horária Realizada : #{frequenciaMensalMBean.frequenciaMensal.cargaHorariaFormatada} </f:facet>
+		</h:dataTable>
+		<h:commandButton value="Holomogar"
+			action="#{frequenciaMensalMBean.homologarFrequenciaMensal}"
+			rendered="#{frequenciaMensalMBean.mostrarAtividades}">
+
+		</h:commandButton>
+		<h:commandButton value="Recusar	"
+			action="#{frequenciaMensalMBean.recusarFrequenciaMensal}"
+			rendered="#{frequenciaMensalMBean.mostrarAtividades}"></h:commandButton>
+	</h:form>
+</h:body>
+</html>
