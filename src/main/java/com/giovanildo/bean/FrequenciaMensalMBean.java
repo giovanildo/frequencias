@@ -50,7 +50,6 @@ public class FrequenciaMensalMBean implements Serializable {
 	public FrequenciaMensalMBean() {
 		super();
 		this.frequenciaMensal = new FrequenciaMensal();
-		this.mostrarAtividades = false;
 	}
 
 	public TimeZone getTimeZone() {
@@ -130,6 +129,10 @@ public class FrequenciaMensalMBean implements Serializable {
 		this.frequenciaMensal.adicionaSituacao(Situacao.PREENCHENDO);
 		this.frequenciaMensal.setMesAno(mesAno);
 		new DAO<FrequenciaMensal>(FrequenciaMensal.class).adiciona(this.frequenciaMensal);
+		FacesContext.getCurrentInstance().addMessage("atividade",
+				new FacesMessage("Frequência " + new SimpleDateFormat("MM/yyyy").format(frequenciaMensal.getMesAno())
+						+ " criada com sucesso! adicione novas atividades ;)"));
+
 	}
 
 	public void editarFrequenciaMensal(FrequenciaMensal frequencia) {
@@ -141,20 +144,50 @@ public class FrequenciaMensalMBean implements Serializable {
 		this.frequenciaMensal.removeAtividade(atividade);
 	}
 
-	public void enviarFrequenciaMensal() {
-		SituacaoFrequenciaMensal situacao = new SituacaoFrequenciaMensal(frequenciaMensal, Situacao.ENVIADA);
+	public void enviarFrequenciaMensal(FrequenciaMensal frequencia) {
+		SituacaoFrequenciaMensal situacao = new SituacaoFrequenciaMensal(frequencia, Situacao.ENVIADA);
 		new DAO<SituacaoFrequenciaMensal>(SituacaoFrequenciaMensal.class).adiciona(situacao);
-		this.setMostrarAtividades(false);
 	}
 
 	public void salvarFrequenciaMensal() {
+
+		if (!frequenciaEhValida(this.frequenciaMensal)) {
+			return;
+		}
 
 		if (frequenciaMensal.getId() == null) {
 			new DAO<FrequenciaMensal>(FrequenciaMensal.class).adiciona(this.frequenciaMensal);
 		} else {
 			new DAO<FrequenciaMensal>(FrequenciaMensal.class).atualiza(this.frequenciaMensal);
 		}
-		this.setMostrarAtividades(false);
+
+		FacesContext.getCurrentInstance().addMessage("atividade", new FacesMessage("Atividades da Frequência "
+				+ new SimpleDateFormat("MM/yyyy").format(frequenciaMensal.getMesAno()) + " Salva com sucesso"));
+		this.frequenciaMensal = new FrequenciaMensal();
+	}
+
+	private Boolean frequenciaEhValida(FrequenciaMensal frequencia) {
+
+		long horasFaltando = frequencia.chExigidaEmMs() - frequencia.cargaHorariaTotal();
+
+		if (horasFaltando < 0) {
+			FacesContext.getCurrentInstance().addMessage("atividade",
+					new FacesMessage("A carga horária realizada não pode ser maior do que a carga horária exigida"));
+			return false;
+		} else {
+			if (horasFaltando == 0) {
+				FacesContext.getCurrentInstance().addMessage("atividade",
+						new FacesMessage("Parabéns! Você já pode enviar sua frequência!"));
+
+			}
+			if (horasFaltando > 0) {
+				FacesContext.getCurrentInstance().addMessage("atividade",
+						new FacesMessage("Falta " + FrequenciaMensal.cargaHorariaFormatada(horasFaltando)
+								+ " trabalhadas para poder enviar a frequencia"));
+				return true;
+			}
+			return true;
+		}
 	}
 
 	private Date combinaDataEhora(Date data, Date hora) {
@@ -213,27 +246,6 @@ public class FrequenciaMensalMBean implements Serializable {
 			FacesContext.getCurrentInstance().addMessage("atividade",
 					new FacesMessage("Hora Final deve ser maior que a hora inicial"));
 			return false;
-		}
-
-		long horasFaltandoMaisAdigitadaAgora = this.frequenciaMensal.chExigidaEmMs()
-				- (this.frequenciaMensal.cargaHorariaTotal() + atividade.cargaHoraria());
-
-		if (horasFaltandoMaisAdigitadaAgora < 0) {
-			FacesContext.getCurrentInstance().addMessage("atividade",
-					new FacesMessage("A carga horária realizada não pode ser maior do que a carga horária exigida"));
-			return false;
-		}
-
-		if (horasFaltandoMaisAdigitadaAgora == 0) {
-			FacesContext.getCurrentInstance().addMessage("atividade",
-					new FacesMessage("Parabéns! Você já pode enviar sua frequência!"));
-			return true;
-		}
-		if (horasFaltandoMaisAdigitadaAgora > 0) {
-			FacesContext.getCurrentInstance().addMessage("atividade",
-					new FacesMessage("Falta " + FrequenciaMensal.cargaHorariaFormatada(horasFaltandoMaisAdigitadaAgora)
-							+ " trabalhadas para poder enviar a frequencia"));
-			return true;
 		}
 
 		return true;
@@ -368,6 +380,36 @@ public class FrequenciaMensalMBean implements Serializable {
 		return false;
 	}
 
+	public Situacao situacao() {
+		return this.frequenciaMensal.situacao();
+	}
+
+	public Boolean envioFrequencia(FrequenciaMensal frequencia) {
+		
+		Situacao situacao = frequencia.situacao();
+		Boolean editavel = situacao.equals(Situacao.PREENCHENDO) || situacao.equals(Situacao.RECUSADA);
+		Boolean cargaHorariaOK = frequencia.chExigidaEmMs() - frequencia.cargaHorariaTotal() == 0;
+		
+		if(editavel && cargaHorariaOK) {
+			return true;
+		}
+		return false;
+	}
+
+	public Boolean getEhEditavel() {
+		if (this.frequenciaMensal == null) {
+			return false;
+		}
+
+		if (this.frequenciaMensal.getId() == null) {
+			return false;
+		}
+
+		Situacao situacao = situacao();
+
+		return situacao.equals(Situacao.PREENCHENDO) || situacao.equals(Situacao.RECUSADA);
+	}
+
 	public List<PlanoTrabalho> getPlanosTrabalho() {
 		return new DAO<PlanoTrabalho>(PlanoTrabalho.class).listaTodos();
 	}
@@ -426,6 +468,9 @@ public class FrequenciaMensalMBean implements Serializable {
 	}
 
 	public Boolean getMostrarAtividades() {
+		if (this.frequenciaMensal.getId() == null) {
+			return false;
+		}
 		return mostrarAtividades;
 	}
 
@@ -433,22 +478,4 @@ public class FrequenciaMensalMBean implements Serializable {
 		this.mostrarAtividades = mostrarAtividades;
 	}
 
-	public Situacao situacao() {
-		return this.frequenciaMensal.situacao();
-	}
-
-	public Boolean getPermitirExcluir() {
-		return !(situacao() == Situacao.ENVIADA || situacao() == Situacao.HOMOLOGADA || situacao() == null);
-	}
-
-	public Boolean getEnvioFrequencia() {
-		if (!this.mostrarAtividades) {
-			return false;
-		}
-
-		if (situacao() == Situacao.ENVIADA || situacao() == Situacao.HOMOLOGADA || situacao() == null) {
-			return false;
-		}
-		return this.frequenciaMensal.chExigidaEmMs() - this.frequenciaMensal.cargaHorariaTotal() == 0;
-	}
 }

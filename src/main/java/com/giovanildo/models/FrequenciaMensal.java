@@ -121,8 +121,7 @@ public class FrequenciaMensal implements Serializable {
 		}
 		return total;
 	}
-	
-	
+
 	public Long cargaHorariaRestante() {
 		return chExigidaEmMs() - cargaHorariaTotal();
 	}
@@ -132,7 +131,7 @@ public class FrequenciaMensal implements Serializable {
 		Long chExigidaEmMs = TimeUnit.HOURS.toMillis(chExigida);
 		return chExigidaEmMs;
 	}
-	
+
 	public String getCargaHorariaRestanteFormatada() {
 		return cargaHorariaFormatada(cargaHorariaRestante());
 	}
@@ -166,7 +165,7 @@ public class FrequenciaMensal implements Serializable {
 
 		return situacao().name();
 	}
-	
+
 	public Situacao situacao() {
 		SituacaoFrequenciaMensal maiorData = null;
 		for (SituacaoFrequenciaMensal daVez : this.getHistoricoSituacao()) {
@@ -180,8 +179,7 @@ public class FrequenciaMensal implements Serializable {
 
 		return maiorData.getSituacao();
 	}
-	
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

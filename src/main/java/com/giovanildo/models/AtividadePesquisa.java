@@ -39,7 +39,7 @@ public class AtividadePesquisa {
 	public Long cargaHoraria() {
 		return dataTermino.getTime() - dataInicio.getTime();
 	}
-	
+
 	public String getCargaHorariaFormatada() {
 		return FrequenciaMensal.cargaHorariaFormatada(cargaHoraria());
 	}

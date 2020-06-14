@@ -10,7 +10,7 @@
 <h:body>
 	<h1>Frequencias Mensais</h1>
 	<h:form id="form">
-		<h:messages id="mensagens" />
+
 		<fieldset>
 			<h:selectOneMenu value="#{frequenciaMensalMBean.planoTrabalhoId}"
 				id="busca_plano_trabalho_id">
@@ -27,6 +27,11 @@
 					var="frequencia">
 					<f:facet name="header">Frequências adicionadas</f:facet>
 					<h:column>
+						<h:commandButton value="Enviar Frequencia"
+							actionListener="#{frequenciaMensalMBean.enviarFrequenciaMensal(frequencia)}"
+							rendered="#{frequenciaMensalMBean.envioFrequencia(frequencia)}" />
+					</h:column>
+					<h:column>
 						<f:facet name="header">Mês/Ano</f:facet>
 						<h:outputText value="#{frequencia.mesAno}">
 							<f:convertDateTime pattern="MM/yyyy" />
@@ -34,17 +39,14 @@
 					</h:column>
 					<h:column>
 						<f:facet name="header">Situação</f:facet>
-						<h:outputText value="#{frequencia.situacaoAtual}" />
+						<h:commandLink value="#{frequencia.situacaoAtual}"
+							action="#{frequenciaMensalMBean.editarFrequenciaMensal(frequencia)}" />
 					</h:column>
 					<h:column>
 						<f:facet name="header"> Falta </f:facet>
 						<h:outputText value="#{frequencia.cargaHorariaRestanteFormatada}" />
 					</h:column>
-					<h:column>
-						<f:facet name="header">Editar</f:facet>
-						<h:commandLink value="editar"
-							action="#{frequenciaMensalMBean.editarFrequenciaMensal(frequencia)}" />
-					</h:column>
+
 				</h:dataTable>
 
 				<h:dataTable id="frequencias_nao_criadas"
@@ -66,8 +68,9 @@
 				</h:dataTable>
 			</h:panelGrid>
 		</fieldset>
+		<h:messages id="mensagens" />
 		<h:panelGrid id="cadastro_atividades"
-			rendered="#{frequenciaMensalMBean.mostrarAtividades}" columns="9">
+			rendered="#{frequenciaMensalMBean.ehEditavel}" columns="9">
 			<h:outputLabel value="Data : " for="dia_atividade" />
 			<h:selectOneMenu value="#{frequenciaMensalMBean.diaAtividade}"
 				id="dia_atividade">
@@ -128,7 +131,8 @@
 			<h:column>
 				<f:facet name="header">excluir</f:facet>
 				<h:commandLink value="excluir"
-					actionListener="#{frequenciaMensalMBean.excluirAtividade(atividade)}" rendered="#{frequenciaMensalMBean.permitirExcluir}"/>
+					actionListener="#{frequenciaMensalMBean.excluirAtividade(atividade)}"
+					rendered="#{frequenciaMensalMBean.ehEditavel}" />
 			</h:column>
 			<h:column>
 				<f:facet name="header">Carga Horária</f:facet>
@@ -138,12 +142,10 @@
 		</h:dataTable>
 		<h:commandButton value="Salvar"
 			actionListener="#{frequenciaMensalMBean.salvarFrequenciaMensal}"
-			rendered="#{frequenciaMensalMBean.mostrarAtividades}">
+			rendered="#{frequenciaMensalMBean.ehEditavel}">
 			<f:ajax execute="@form" render="@form" />
 		</h:commandButton>
-		<h:commandButton value="Enviar Frequencia"
-			actionListener="#{frequenciaMensalMBean.enviarFrequenciaMensal}"
-			rendered="#{frequenciaMensalMBean.envioFrequencia}" />
+
 	</h:form>
 </h:body>
 </html>
