@@ -1,0 +1,65 @@
+-- Table: pesquisa.frequencia_mensal
+
+-- DROP TABLE pesquisa.frequencia_mensal;
+
+CREATE TABLE pesquisa.frequencia_mensal
+(
+  id_frequencia_mensal integer NOT NULL,
+  descricao character varying(255),
+  mes_ano timestamp with time zone,
+  id_plano_trabalho integer,
+  CONSTRAINT frequencia_mensal_pkey PRIMARY KEY (id_frequencia_mensal),
+  CONSTRAINT plano_trabalho_fkey FOREIGN KEY (id_plano_trabalho)
+      REFERENCES pesquisa.plano_trabalho (id_plano_trabalho) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE pesquisa.frequencia_mensal
+  OWNER TO sigaa_group;
+  
+  
+  
+  -- Table: pesquisa.atividade_pesquisa
+
+-- DROP TABLE pesquisa.atividade_pesquisa;
+
+CREATE TABLE pesquisa.atividade_pesquisa
+(
+  id_atividade_pesquisa integer NOT NULL,
+  data_inicio timestamp with time zone,
+  data_termino timestamp with time zone,
+  descricao character varying(255),
+  id_frequencia_mensal integer,
+  CONSTRAINT atividade_pesquisa_pkey PRIMARY KEY (id_atividade_pesquisa),
+  CONSTRAINT frequencia_mensal_fkey FOREIGN KEY (id_frequencia_mensal)
+      REFERENCES pesquisa.frequencia_mensal (id_frequencia_mensal) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE pesquisa.atividade_pesquisa
+  OWNER TO sigaa_group;
+
+  -- Table: pesquisa.situacao_frequencia_mensal
+
+-- DROP TABLE pesquisa.situacao_frequencia_mensal;
+
+CREATE TABLE pesquisa.situacao_frequencia_mensal
+(
+  id_situacao_frequencia_mensal integer NOT NULL,
+  data timestamp with time zone,
+  situacao integer,
+  id_frequencia_mensal integer,
+  CONSTRAINT situacao_frequencia_mensal_pkey PRIMARY KEY (id_situacao_frequencia_mensal),
+  CONSTRAINT frequencia_mensal_pkey FOREIGN KEY (id_frequencia_mensal)
+      REFERENCES pesquisa.frequencia_mensal (id_frequencia_mensal) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE pesquisa.situacao_frequencia_mensal
+  OWNER TO sigaa_group;
